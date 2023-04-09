@@ -1,22 +1,16 @@
 import React from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { useNavigate, Outlet } from "react-router-dom";
-import { removeUser } from "../store/userReducer";
 import Header from "./Header";
 import Footer from "./Footer";
 import Sidebar from "./Sidebar";
+import { Col, Container, Row } from "react-bootstrap";
 
 export default function Layout(){
 
     const {email} = useSelector(state => state.user);
     const navigate = useNavigate()
 
-    const dispatch = useDispatch();
-
-    // const signOut = () => {
-    //     localStorage.removeItem('userEmail')
-    //     dispatch(removeUser())
-    // }
     React.useEffect(() => {
         if(!email){
             navigate('login')
@@ -24,19 +18,19 @@ export default function Layout(){
     },[email])
 
     return (
-        <div className="container-fluid ">
-            <div className="row">
-                <div className="col-2 vh-100 p-0 bg-dark text-light">
+        <Container>
+                <div>
                     <Sidebar/>
                 </div>
-                <div className="col vh-100 bg-primary text-light">
-                    <Header/>
-                    <main>
-                        <Outlet/>
-                    </main>
-                    <Footer/>
-                </div>
-            </div>
-        </div>
+                <Row>
+                    <Col className="d-flex flex-column min-vh-100">
+                        <Header/>
+                        <main className="flex-shrink-1 flex-grow-1">
+                            <Outlet/>
+                        </main>
+                        <Footer/>
+                    </Col>
+                </Row>
+        </Container>
     )
 }

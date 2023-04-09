@@ -3,7 +3,8 @@ import { createSlice } from "@reduxjs/toolkit";
 const userSlice = createSlice({
     name:'user',
     initialState:{
-        email:localStorage.getItem('userEmail') || null
+        email:/*localStorage.getItem('userEmail') ||*/ null,
+        isAdmin: false
     },
     reducers:{
         setUser:(state, action) => {

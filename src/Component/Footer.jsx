@@ -1,21 +1,21 @@
 import React from 'react'
-import { useSelector, useDispatch } from 'react-redux';
-import { removeUser } from '../store/userReducer';
+import { Row, Stack, Col} from 'react-bootstrap';
+import logo from '../img/logo.png';
 
 export default function Footer() {
 
-    const {email} = useSelector(state => state.user);
-
-    const dispatch = useDispatch();
-
-    const signOut = () => {
-        localStorage.removeItem('userEmail')
-        dispatch(removeUser())
-    }
   return (
-    <div>
-        <div>{email}</div>
-        <button onClick={() => signOut()}>Sign out</button>
-    </div>
+    <footer className='text-bg-secondary p-1'>
+      <Row>
+        <Col className='d-flex align-items-center'>
+          <Stack>
+            <div>
+                <span><img src={logo} alt="logo" /></span>
+                <span>Designed by Ilia Krasnoper</span>
+            </div>
+          </Stack>
+        </Col>
+      </Row>
+    </footer>
   )
 }
