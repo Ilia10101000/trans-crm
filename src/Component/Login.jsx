@@ -1,10 +1,13 @@
 import React from 'react'
 import {signInWithEmailAndPassword, getAuth, signInWithPopup, GoogleAuthProvider} from 'firebase/auth';
 import { setUser } from '../store/userReducer';
-import { googleProvider, facebookProvider} from '../firebase';
-import { useDispatch } from 'react-redux';
+import { googleProvider, facebookProvider} from '../firebase/firebase';
+import { collection, getDocs, where, query } from 'firebase/firestore';
+import { db } from '../firebase/firebase';
+import { setError } from '../store/errorReducer';
+import { useDispatch, useSelector } from 'react-redux';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
-import { Button, Col, Container, Row, Stack } from 'react-bootstrap';
+import { Button, Col, Container, Row, Stack, Alert } from 'react-bootstrap';
 import {FcGoogle} from 'react-icons/fc'
 import {GrFacebook} from 'react-icons/gr'
 import {BsPhone} from 'react-icons/bs'
@@ -15,36 +18,60 @@ export default function Login() {
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const {loading} = useSelector(state => state.loading);
+  const {error} = useSelector(state => state.error);
 
-  function signIn(){
-    const auth = getAuth();
+  async function signIn(e){
+    e.preventDefault();
+    try {
+      const auth = getAuth();
+      const credentials = await signInWithEmailAndPassword(auth, email, password);
+      dispatch(setUser(await requestUserData(credentials.user.email)));
+      navigate('/');
+    } catch (error) {
+      dispatch(setError(error.message));
+    }
+  };
 
-    signInWithEmailAndPassword(auth, email, password)
-    .then(credentials => {
-        console.log(credentials.user);
-        dispatch(setUser({email: credentials.user.email}));
-        navigate('/')
-    }).catch(error => console.log(error.message))
-  }
 
-  function signInByGoogle(){
-    const auth = getAuth();
-    signInWithPopup(auth, googleProvider)
-    .then(result => {
-      const credentials = GoogleAuthProvider.credentialFromResult(result);
-      localStorage.setItem('userEmail', result.user.email)
-      dispatch(setUser({email: result.user.email}))
+  async function requestUserData(email){
+    try {
+      let requestUserData = query(collection(db,'registered users'), where('email','==',email))
+      const querySnapshot = await getDocs(requestUserData);
+      return querySnapshot.docs[0].data()
+    } catch (error) {
+      throw new Error(error.message)
+    }
+  };
+
+
+  async function signInByGoogle(){
+    try {
+      const auth = getAuth();
+      const result = await signInWithPopup(auth, googleProvider);
+      console.log(result)
+      // localStorage.setItem('userEmail', result.user.email)
+      dispatch(setUser({
+        email: result.user.email,
+        isAdmin: result.user.email === 'ilya.krasnoper@gmail.com',
+        name: result.user.displayName,
+        phone: result.user.phoneNumber
+      }))
       navigate('/')
-    })
-    .catch(e => console.log(e))
-  }
-  function signInByFacebook(){
-    const auth = getAuth();
-    signInWithPopup(auth, facebookProvider)
-    .then(credentials => {
+    } catch (error) {
+      dispatch(setError(error.message));
+    }
+  };
+
+  async function signInByFacebook(){
+    try {
+      const auth = getAuth();
+      const credentials = await signInWithPopup(auth, facebookProvider);
       console.log(credentials)
-    })
-    .catch(e => console.log(e.message))
+    } catch (error) {
+      dispatch(setError(error.message));
+    }
+    
   }
 
   return (
@@ -52,19 +79,21 @@ export default function Login() {
         <Row className='d-flex justify-content-center align-items-center min-vh-100'>
           <Col xs={5} className='d-flex flex-column justify-content-center align-items-center'>
             <h2 className='mb-5'>Login</h2>
-            <Stack className=' d-flex flex-column align-items-center' gap={3}>
-              <div className="form-floating mb-3">
-                  <input style={{width: '300px'}} type="email" value={email} onChange={e => setEmail(e.target.value)} className="form-control" id="floatingInput" placeholder=" "/>
-                  <label htmlFor="floatingInput">Email</label>
-                  <div id="emailHelp" className="form-text"></div>
-              </div>
-              <div className="form-floating">
-                  <input style={{width: '300px'}} type="password" value={password} onChange={e => setPassword(e.target.value)} className="form-control" id="floatingPassword" placeholder=" "/>
-                  <label htmlFor="floatingPassword">Password</label>
-                  <div id="emailHelp" className="form-text">No less 8 characters</div>
-              </div>
-              <Button variant='success' onClick={signIn}>Log in</Button>
-            </Stack>
+            <form onSubmit={signIn}>
+              <Stack className=' d-flex flex-column align-items-center' gap={3}>
+                <div className="form-floating mb-3">
+                    <input type="email" pattern='[a-zA-Z0-9_\.\+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-\.]+' value={email} onChange={e => setEmail(e.target.value)} className="form-control" id="floatingInputLoginEmail" placeholder=" " autoComplete='off' required/>
+                    <label htmlFor="floatingInputLoginEmail">Email</label>
+                    <div id="emailHelp" className="form-text"></div>
+                </div>
+                <div className="form-floating">
+                    <input type="password" value={password} minLength={6} onChange={e => setPassword(e.target.value)} className="form-control" id="floatingLoginPassword" placeholder=" " autoComplete='off' required/>
+                    <label htmlFor="floatingLoginPassword">Password</label>
+                    <div id="emailHelp" className="form-text">No less than 6 characters</div>
+                </div>
+                <Button type='submit' variant='success'>Log in</Button>
+              </Stack>
+            </form>
             <Stack className='align-items-center mt-5'>
               <span>If you don`t have account, <NavLink to='/register' className='text-decoration-none'>create it.</NavLink></span>
             </Stack>
@@ -78,8 +107,17 @@ export default function Login() {
                 </Stack>
               </div>
             </Stack>
+            {error?
+            <Alert className='alert-message' variant="danger" onClose={() => dispatch(setError(null))} dismissible>
+            <Alert.Heading>Alert!</Alert.Heading>
+            <p>{error}</p>
+            </Alert>
+            :
+            null
+            }
           </Col>
         </Row>
+
     </Container>
   )
 }

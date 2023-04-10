@@ -4,14 +4,24 @@ const userSlice = createSlice({
     name:'user',
     initialState:{
         email:/*localStorage.getItem('userEmail') ||*/ null,
-        isAdmin: false
+        isAdmin: false,
+        name: null,
+        phone:null,
+        // position: null
+        
     },
     reducers:{
         setUser:(state, action) => {
             state.email = action.payload.email
+            state.isAdmin = action.payload.isAdmin
+            state.name = action.payload.name
+            state.phone = action.payload.phone
         },
         removeUser: state => {
-            state.email = null
+            state.email = null;
+            state.isAdmin = null;
+            state.name = null;
+            state.phone = null;
         }
     }
 });

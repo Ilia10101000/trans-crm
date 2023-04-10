@@ -10,7 +10,7 @@ export default function Footer() {
         <Col className='d-flex align-items-center'>
           <Stack>
             <div>
-                <span><img src={logo} alt="logo" /></span>
+                <span className='logo-image'><img src={logo} alt="logo" /></span>
                 <span>Designed by Ilia Krasnoper</span>
             </div>
           </Stack>

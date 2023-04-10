@@ -27,8 +27,8 @@ export default function Sidebar() {
          <Offcanvas.Header className='mb-3' closeButton>
            <Offcanvas.Title>
             <Stack direction="horizontal" gap={3}>
-                <div className="logo-img"><img src={logo} alt='logo'/></div>
-                <div className="logo-description fs-5">Trans CRM</div>
+                <span className="logo-img"><img src={logo} alt='logo'/></span>
+                <span className="logo-description fs-5">Trans CRM</span>
             </Stack>
            </Offcanvas.Title>
          </Offcanvas.Header>
