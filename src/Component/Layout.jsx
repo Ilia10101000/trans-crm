@@ -1,21 +1,31 @@
 import React from "react";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { useNavigate, Outlet } from "react-router-dom";
 import Header from "./Header";
 import Footer from "./Footer";
 import Sidebar from "./Sidebar";
 import { Col, Container, Row } from "react-bootstrap";
+import { setUser } from "../store/userReducer";
 
 export default function Layout(){
 
-    const {email} = useSelector(state => state.user);
-    const navigate = useNavigate()
+    const {user } = useSelector(state => state);
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
 
     React.useEffect(() => {
-        if(!email){
-            navigate('login')
+        if(!user.email && localStorage.getItem('register-user')){
+          dispatch(setUser(JSON.parse(localStorage.getItem('register-user'))))
         }
-    },[email])
+      },[]);
+
+    React.useEffect(() => {
+        if(!user.email){
+            navigate('login')
+        } else {
+            navigate('/')
+        }
+    },[user.email])
 
     return (
         <Container>

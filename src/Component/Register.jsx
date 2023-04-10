@@ -39,13 +39,14 @@ export default function Register() {
     try {
       const credentials = await createUserWithEmailAndPassword(auth, email, password);
       console.log(credentials)
-      // localStorage.setItem('userEmail', credentials.user.email)
-      dispatch(setUser({
+      const user = {
         email,
         name,
         phone: phoneNumber,
         isAdmin: email === 'ilya.krasnoper@gmail.com'
-      }));
+      }
+      dispatch(setUser(user));
+      localStorage.setItem('register-user', JSON.stringify(user))
       navigate('/')
     } catch (error) {
       dispatch(setError(error.message));

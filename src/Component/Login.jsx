@@ -26,7 +26,9 @@ export default function Login() {
     try {
       const auth = getAuth();
       const credentials = await signInWithEmailAndPassword(auth, email, password);
-      dispatch(setUser(await requestUserData(credentials.user.email)));
+      const user = await requestUserData(credentials.user.email);
+      dispatch(setUser(user));
+      localStorage.setItem('register-user', JSON.stringify(user))
       navigate('/');
     } catch (error) {
       dispatch(setError(error.message));
@@ -49,14 +51,14 @@ export default function Login() {
     try {
       const auth = getAuth();
       const result = await signInWithPopup(auth, googleProvider);
-      console.log(result)
-      // localStorage.setItem('userEmail', result.user.email)
-      dispatch(setUser({
+      const user = {
         email: result.user.email,
         isAdmin: result.user.email === 'ilya.krasnoper@gmail.com',
         name: result.user.displayName,
         phone: result.user.phoneNumber
-      }))
+      };
+      dispatch(setUser(user))
+      localStorage.setItem('register-user', JSON.stringify(user))
       navigate('/')
     } catch (error) {
       dispatch(setError(error.message));

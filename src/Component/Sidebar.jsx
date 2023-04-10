@@ -19,7 +19,8 @@ export default function Sidebar() {
     const dispatch = useDispatch();
     const handleClose = () => dispatch(hideSidebar());
     function signOut(){
-        dispatch(removeUser())
+        localStorage.removeItem('register-user')
+        dispatch(removeUser());
     }
 
   return (

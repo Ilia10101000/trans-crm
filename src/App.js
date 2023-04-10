@@ -7,9 +7,20 @@ import Layout from "./Component/Layout";
 import Login from "./Component/Login";
 import Register from "./Component/Register";
 import Settings from "./Component/Settings";
+import { useDispatch, useSelector } from "react-redux";
+import { setUser } from "./store/userReducer";
 
 
 function App() {
+
+  const {user} = useSelector(state => state);
+  const dispatch = useDispatch();
+
+  React.useEffect(() => {
+    if(!user.email && localStorage.getItem('register-user')){
+      dispatch(setUser(JSON.parse(localStorage.getItem('register-user'))))
+    }
+  },[])
 
   return (
     <Routes>
