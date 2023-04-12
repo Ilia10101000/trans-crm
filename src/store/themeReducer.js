@@ -7,7 +7,7 @@ const themeSlice = createSlice({
     },
     reducers:{
         changeThemeMode: state => {
-            state.mode = !state.mode 
+            state.isDark = !state.isDark 
         }
     }
 });

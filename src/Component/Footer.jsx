@@ -16,6 +16,7 @@ export default function Footer() {
           </Stack>
         </Col>
       </Row>
+      {/* <div className="background bg-secondary"></div> */}
     </footer>
   )
 }

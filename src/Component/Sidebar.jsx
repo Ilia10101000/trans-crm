@@ -11,6 +11,7 @@ import {AiFillSetting} from 'react-icons/ai';
 import {GoSignOut} from 'react-icons/go';
 import { Offcanvas, Stack, Nav, Button } from 'react-bootstrap';
 import { removeUser } from '../store/userReducer';
+import { changeThemeMode } from '../store/themeReducer';
 
 export default function Sidebar() {
 
@@ -34,43 +35,37 @@ export default function Sidebar() {
            </Offcanvas.Title>
          </Offcanvas.Header>
          <Offcanvas.Body className='d-flex flex-column'>
-            <Nav>
+            <Nav className='d-flex flex-column'>
                 <Nav.Item>
-                    <Nav.Link>
                         <NavLink to='/' className='text-decoration-none fs-5' onClick={handleClose}>
                             <Stack direction="horizontal" gap={3}>
                                 <span><FiHome/></span>
                                 <span>Home</span>
                             </Stack>
                         </NavLink>
-                    </Nav.Link>
                 </Nav.Item>
                 <Nav.Item>
-                    <Nav.Link>
                         <NavLink to='trips' className='text-decoration-none fs-5' onClick={handleClose}>
                              <Stack direction="horizontal" gap={3}>
                                 <span><BiTrip/></span>
                                 <span>Trips</span>
                              </Stack>
                         </NavLink>
-                    </Nav.Link>
                 </Nav.Item>
                 <Nav.Item>
-                    <Nav.Link>
                         <NavLink to='settings' className='text-decoration-none fs-5' onClick={handleClose}>
                             <Stack direction="horizontal" gap={3}>
                                 <span><AiFillSetting/></span>
                                 <span>Settings</span>
                             </Stack>
                         </NavLink>
-                    </Nav.Link>
                 </Nav.Item>
             </Nav>
             <div className="sidebar-bottom px-3 mt-auto">
                 <Stack gap={3}>
                     <Stack direction="horizontal" gap={3}>
                         <span>{isDark?<ImSun/>:<BsMoonFill/>}</span>
-                        <Button variant={isDark?'light':'dark'}>{isDark?'Light mode':'Dark mode'}</Button>
+                        <Button variant={isDark?'light':'dark'} onClick={() => dispatch(changeThemeMode())}>{isDark?'Light mode':'Dark mode'} </Button>
                     </Stack>
                     <Stack direction="horizontal" gap={3}>
                         <span><GoSignOut/></span>

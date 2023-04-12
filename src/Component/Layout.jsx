@@ -10,6 +10,7 @@ import { setUser } from "../store/userReducer";
 export default function Layout(){
 
     const {user } = useSelector(state => state);
+    const {isDark} = useSelector(state => state.theme)
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
@@ -28,7 +29,7 @@ export default function Layout(){
     },[user.email])
 
     return (
-        <Container>
+        <Container className={isDark?'text-bg-dark':'text-bg-light'}>
                 <div>
                     <Sidebar/>
                 </div>

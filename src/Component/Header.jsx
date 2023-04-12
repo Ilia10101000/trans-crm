@@ -31,6 +31,7 @@ export default function Header() {
               </div>
             </Col>
           </Row>
+          {/* <div className="background bg-secondary"></div> */}
         </header>
   )
 }

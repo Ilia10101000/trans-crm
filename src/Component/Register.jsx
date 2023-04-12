@@ -68,7 +68,7 @@ export default function Register() {
         <form onSubmit={signUp}>
           <Stack className='align-items-center' gap={3}>
             <div className="form-floating mb-3">
-                <input type="texy" minLength={2} value={name} onChange={e => setName(e.target.value)} className="form-control" id="floatingInputRegisterName" placeholder=" " required autoComplete='off'/>
+                <input type="text" minLength={2} value={name} onChange={e => setName(e.target.value)} className="form-control" id="floatingInputRegisterName" placeholder=" " required autoComplete='off'/>
                 <label htmlFor="floatingInputRegisterName">Your name</label>
             </div>
             <div className="form-floating mb-3">
