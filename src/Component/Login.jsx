@@ -51,12 +51,17 @@ export default function Login() {
     try {
       const auth = getAuth();
       const result = await signInWithPopup(auth, googleProvider);
-      const user = {
+      let user;
+      try {
+        user = await requestUserData(result.user.email);
+      } catch (error) {
+        user = {
         email: result.user.email,
-        isAdmin: result.user.email === 'ilya.krasnoper@gmail.com',
-        name: result.user.displayName,
-        phone: result.user.phoneNumber
+        name: result.user.displayName || 'unknow',
+        phone: result.user.phoneNumber || '-',
+        position:result.user.email === 'ilya.krasnoper@gmail.com'?'Admin':'User'
       };
+      }
       dispatch(setUser(user))
       localStorage.setItem('register-user', JSON.stringify(user))
       navigate('/')

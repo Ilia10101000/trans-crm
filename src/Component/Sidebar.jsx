@@ -17,6 +17,7 @@ export default function Sidebar() {
 
     const {isShow} = useSelector(state => state.sidebar);
     const {isDark} = useSelector(state => state.theme);
+    const {position} = useSelector(state => state.user)
     const dispatch = useDispatch();
     const handleClose = () => dispatch(hideSidebar());
     function signOut(){
@@ -52,6 +53,7 @@ export default function Sidebar() {
                              </Stack>
                         </NavLink>
                 </Nav.Item>
+           {position === 'Admin'?     
                 <Nav.Item>
                         <NavLink to='settings' className='text-decoration-none fs-5' onClick={handleClose}>
                             <Stack direction="horizontal" gap={3}>
@@ -60,6 +62,8 @@ export default function Sidebar() {
                             </Stack>
                         </NavLink>
                 </Nav.Item>
+                : null
+                }
             </Nav>
             <div className="sidebar-bottom px-3 mt-auto">
                 <Stack gap={3}>

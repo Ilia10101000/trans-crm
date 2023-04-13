@@ -3,7 +3,7 @@ import {createUserWithEmailAndPassword, getAuth} from 'firebase/auth';
 import { setUser } from '../store/userReducer';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, NavLink } from 'react-router-dom';
-import { Button, Col, Container, Row, Stack, Alert } from 'react-bootstrap';
+import { Button, Col, Container, Row, Stack, Alert, Form } from 'react-bootstrap';
 import { setDoc, doc, collection } from 'firebase/firestore';
 import { db } from '../firebase/firebase';
 import { setError } from '../store/errorReducer';
@@ -11,9 +11,10 @@ import { setError } from '../store/errorReducer';
 
 export default function Register() {
   const [name, setName] = React.useState('');
-  const [phoneNumber, setPhoneNumber] = React.useState('');
+  const [phone, setPhone] = React.useState('');
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
+  const [position, setPosition] = React.useState('User');
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -26,31 +27,32 @@ export default function Register() {
         try {
           const userRef = collection(db, 'registered users');
           await setDoc(doc(userRef,email), {
-            name,email,phoneNumber, isAdmin: email === 'ilya.krasnoper@gmail.com'
+            name,email,phone, position: email === 'ilya.krasnoper@gmail.com'?'Admin':position
           })
         } catch (error) {
           dispatch(setError(error.message));
           return
         }
   };
+
+
   const registerUser = async () => {
     const auth = getAuth();
 
     try {
       const credentials = await createUserWithEmailAndPassword(auth, email, password);
-      console.log(credentials)
+
       const user = {
         email,
         name,
-        phone: phoneNumber,
-        isAdmin: email === 'ilya.krasnoper@gmail.com'
+        phone,
+        position: email === 'ilya.krasnoper@gmail.com'?'Admin':position,
       }
       dispatch(setUser(user));
       localStorage.setItem('register-user', JSON.stringify(user))
       navigate('/')
     } catch (error) {
       dispatch(setError(error.message));
-      return
     }
   };
   async function signUp(e){
@@ -72,7 +74,7 @@ export default function Register() {
                 <label htmlFor="floatingInputRegisterName">Your name</label>
             </div>
             <div className="form-floating mb-3">
-                <input type="tel" maxLength={15} pattern='38[0-9]{3}-[0-9]{3}-[0-9]{2}-[0-9]{2}' value={phoneNumber} onChange={e => setPhoneNumber(e.target.value)} className="form-control" id="floatingInputRegisterPhone" placeholder=" " required autoComplete='off'/>
+                <input type="tel" maxLength={15} pattern='38[0-9]{3}-[0-9]{3}-[0-9]{2}-[0-9]{2}' value={phone} onChange={e => setPhone(e.target.value)} className="form-control" id="floatingInputRegisterPhone" placeholder=" " required autoComplete='off'/>
                 <label htmlFor="floatingInputRegisterPhone">Phone</label>
                 <div id="emailHelp" className="form-text">380XX-XXX-XX-XX</div>
             </div>
@@ -84,6 +86,11 @@ export default function Register() {
                 <input type="password" value={password} onChange={e => setPassword(e.target.value)} className="form-control" id="floatingRegisterPassword" placeholder=" " minLength={6} required autoComplete='off'/>
                 <label htmlFor="floatingRegisterPassword">Password</label>
                 <div id="emailHelp" className="form-text">No less than 6 characters</div>
+            </div>
+            <div className='w-100'>
+              <span>Select your position:</span>
+              <Form.Check name='position' type='radio' label='User' id='radio-user' value='User'  onChange={e => setPosition(e.target.value)} checked={position === 'User'}/>
+              <Form.Check name='position' type='radio' label='Driver' id='radio-driver' value='Driver' onChange={e => setPosition(e.target.value)} checked={position === 'Driver'}/>
             </div>
             <Button type='submit' variant='success'>Register</Button>
           </Stack>

@@ -4,6 +4,10 @@
 .menu-wrapper{
     cursor: pointer;
 }
+.trip-item-option{
+    max-width: 250px;
+    word-break: break-all;
+}
 .alert-message{
     position: absolute;
     width: auto;
@@ -23,7 +27,6 @@
 .input-prompt{
     position: absolute;
     font-size: 12px;
-    bottom: -17px;
     left: 5px;
     color: #8c8c8c;
 }

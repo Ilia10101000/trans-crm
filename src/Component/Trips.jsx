@@ -1,18 +1,25 @@
-import React from "react";
-import { Button, Col, Row, Alert } from "react-bootstrap";
+import React from 'react';
+import { Button, Col, Row, Alert, Table } from "react-bootstrap";
 import CreateTripForm from "./CreateTripForm";
+// import CreateTripForm__Deprecated__ from './CreateTripForm__Deprecated__';
 import { useDispatch, useSelector } from "react-redux";
-import { isShowCreateForm, cancelCreateTrip} from '../store/tripReducer';
 import { setError } from '../store/errorReducer';
-import { setDoc, doc, collection } from 'firebase/firestore';
+import { isShowCreateForm, cancelCreateTrip} from '../store/tripReducer';
+import { setDoc, getDocs, doc, query, collection } from 'firebase/firestore';
 import { db } from '../firebase/firebase';
+import TripItem from './TripItem';
+
 
 export default function Trips(){
 
     const [showSuccessAlert, setShowSuccessAlert] = React.useState(false);
-    const {isShowForm, driverName, car, numberOfCar, phone, departurePoint, arrivalPoint, options} = useSelector(state => state.trip);
+    const [tripsList, setTripsList] = React.useState([]);
+
+    const {isShowForm} = useSelector(state => state.trip);
     const {error} = useSelector(state => state.error);
+    const {position} = useSelector(state => state.user);
     const dispatch = useDispatch();
+
 
     React.useEffect(() => {
         if(showSuccessAlert){
@@ -21,8 +28,10 @@ export default function Trips(){
             },3000)
         }
     },[showSuccessAlert])
-
-    const hundlerButtonClick = () => {
+    React.useEffect(() => {
+        getTripsListFromFireStore()
+    },[])
+    async function hundlerButtonClick (){
         if(isShowForm){
             dispatch(cancelCreateTrip())
         }
@@ -31,55 +40,95 @@ export default function Trips(){
         }
     }
 
-    const storeDataToFireStore = async () => {
-                try {
-                  const userRef = collection(db, 'trips');
-                  await setDoc(doc(userRef,`${departurePoint} - ${arrivalPoint}`), {
-                    driverName, car, numberOfCar, phone, departurePoint, arrivalPoint, options
-                  });
-                  setShowSuccessAlert(true);
-                  return true
-                } catch (error) {
-                  dispatch(setError(error.message));
-                  return
-                }
+    async function storeDataToFireStore (tripParametres) {
+        try {
+          const userRef = collection(db, 'trips');
+          await setDoc(doc(userRef,`${tripParametres.departurePoint} - ${tripParametres.arrivalPoint}`), {
+            ...tripParametres
+          });
+          setShowSuccessAlert(true);
+          dispatch(isShowCreateForm(false));
+          await getTripsListFromFireStore()
+        } catch (error) {
+          dispatch(setError(error.message));
+        }
     }
+
+    async function getTripsListFromFireStore(){
+        let q = query(collection(db,'trips'));
+        let querySnapshot = await getDocs(q);
+        let data = [];
+        querySnapshot.forEach(doc => {
+            let trip = {
+                route: doc.id,
+                parametres: doc.data()
+            }
+            data.push(trip)
+        });
+        setTripsList(data)
+    }
+
 
     return (
             <Row className="p-3">
-                <Col>
+                <Col md={12}>
+                    {position === 'Admin' || position === 'Driver'?
                     <Row>
                         <Col className="d-flex">
                              <Button className="ms-auto" variant={isShowForm?'danger':'success'} onClick={hundlerButtonClick}>{isShowForm?'Cancel':'Create a trip'}</Button>
                         </Col>
                     </Row>
+                    :null
+                    }
                     {isShowForm?
                     <Row className="mt-5">
                         <Col>
-                            <CreateTripForm storeTrip={storeDataToFireStore}/>
+                            <CreateTripForm storeTripToFireStore={storeDataToFireStore}/>
+                            {/* <CreateTripForm__Deprecated__/> */}
                         </Col>
                     </Row>
                     :
                     null
                     }
+                    {showSuccessAlert?
+                    <Alert className='alert-message mx-auto' variant="success">
+                    <Alert.Heading>Congratulations!</Alert.Heading>
+                    <p className="text-center">Trip successfully created.</p>
+                    </Alert>
+                    :
+                    null
+                    }
+                    {error?
+                    <Alert className='alert-message mx-auto' variant="danger" onClose={() => dispatch(setError(null))} dismissible>
+                    <Alert.Heading>Alert!</Alert.Heading>
+                    <p className="text-center">{error}</p>
+                    </Alert>
+                    :
+                    null
+                    }
                 </Col>
-                {
-                showSuccessAlert?
-                <Alert className='alert-message mx-auto' variant="success">
-                <Alert.Heading>Сongratulations!</Alert.Heading>
-                <p className="text-center">Trip successfully created</p>
-                </Alert>
-                :
-                null
+                <Col md={12} className='mt-3'>
+                {tripsList.length?
+                    <Table striped bordered hover responsive>
+                    <thead>
+                      <tr>
+                        <th>Route</th>
+                        <th>Driver</th>
+                        <th>Phone</th>
+                        <th>Car</th>
+                        <th>Number of Car</th>
+                        <th>Conditions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {tripsList.map(trip => <TripItem key={trip.route} trip={{...trip}}/>)}
+                    </tbody>
+                  </Table>
+                  :
+                  <div className='mx-auto'>No one trip has created</div>
                 }
-                {error?
-                <Alert className='alert-message mx-auto' variant="danger" onClose={() => dispatch(setError(null))} dismissible>
-                <Alert.Heading>Alert!</Alert.Heading>
-                <p className="text-center">{error}</p>
-                </Alert>
-                :
-                null
-                }
+                </Col>
             </Row>
     )
 }
+

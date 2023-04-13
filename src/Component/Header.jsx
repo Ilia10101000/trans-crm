@@ -6,7 +6,7 @@ import { showSidebar } from '../store/sidebarReducer';
 
 export default function Header() {
 
-  const {isAdmin, email} = useSelector(state => state.user);
+  const {position, email} = useSelector(state => state.user);
   const dispatch = useDispatch();
   function hundlerMenuOnclick(){
     dispatch(showSidebar())
@@ -25,7 +25,7 @@ export default function Header() {
             <Col className='d-flex'>
               <div className='ms-auto'>
                 <Stack gap={1}>
-                    <span>Status: {isAdmin?'Admin':'User'}</span>
+                    <span>Position: {position}</span>
                     <span>{email}</span>
                 </Stack>
               </div>
