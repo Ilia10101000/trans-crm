@@ -11,13 +11,14 @@ export default function UserItem({parametres,position, changeList}) {
   const dispatch = useDispatch();
 
   function hundlerChangePosition(selectedPosition){
-    console.log(selectedPosition)
-    setCurrentPosition(selectedPosition)
-    if(selectedPosition === parametres.position && changeList.some(item => item.email === parametres.email && item.position === parametres.position )){
+
+    setCurrentPosition(selectedPosition);
+
+    if(selectedPosition === parametres.position && changeList.some(item => item.email === parametres.email)){
       console.log('Сходятся, потому и удаляю!')
         dispatch(removeFromChangePositionList(parametres.email));
     }
-    if(selectedPosition !== parametres.position && !changeList.some(item => item.email === parametres.email && item.position === selectedPosition)){
+    if(selectedPosition !== parametres.position && !changeList.some(item => item.email === parametres.email)){
       console.log('Ставлю новую позицию!')
       dispatch(addForChangePosition({
         ...parametres, position:selectedPosition

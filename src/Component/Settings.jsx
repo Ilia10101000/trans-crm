@@ -3,13 +3,15 @@ import { setDoc, getDocs, doc, query, collection } from 'firebase/firestore';
 import { db } from '../firebase/firebase';
 import UserItem from './UserItem';
 import { Button, Col, Alert,  Table} from "react-bootstrap";
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { cleanChangeList } from '../store/changeUserPositionListReducer';
 
 export default function Settings() {
     const [usersList, setUsersList] = React.useState([]);
 
-    const{position} = useSelector(state => state.user);
-    const {changePositionList} = useSelector(state => state.changeUserPositionList)
+    const {position} = useSelector(state => state.user);
+    const {changePositionList} = useSelector(state => state.changeUserPositionList);
+    const dispatch = useDispatch();
 
     React.useEffect(() => {
       getUsersListFromFireStore()
@@ -29,6 +31,18 @@ export default function Settings() {
       setUsersList(data)
   }
 
+  async function restoreUsersData(){
+    try {
+      const promise = await Promise.all(changePositionList.map(user => setDoc(doc(db, "registered users", user.email), user)));
+      dispatch(cleanChangeList());
+      getUsersListFromFireStore()
+      console.log('success')
+    } catch (error) {
+      console.log(error.message)
+    }
+      
+      
+  }
   return (
       <Col md={12} className='mt-3'>
         {usersList.length?
@@ -46,9 +60,9 @@ export default function Settings() {
             </tbody>
           </Table>
           :
-          <div className='mx-auto'>No one pass register</div>
+          <div className='mx-auto'>Nobody pass register yet</div>
         }
-        <Button variant='primary' disabled={!changePositionList.length}>Confirm change</Button>
+        <Button variant='primary' disabled={!changePositionList.length} onClick={restoreUsersData}>Confirm change</Button>
       </Col>
   )
 }
