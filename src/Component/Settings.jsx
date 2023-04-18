@@ -5,17 +5,27 @@ import UserItem from './UserItem';
 import { Button, Col, Alert,  Table} from "react-bootstrap";
 import { useDispatch, useSelector } from 'react-redux';
 import { cleanChangeList } from '../store/changeUserPositionListReducer';
+import { setError } from '../store/errorReducer';
 
 export default function Settings() {
     const [usersList, setUsersList] = React.useState([]);
+    const [showSuccessAlert, setShowSuccessAlert] = React.useState(false);
 
+    const {error} = useSelector(state => state.error);
     const {position} = useSelector(state => state.user);
     const {changePositionList} = useSelector(state => state.changeUserPositionList);
     const dispatch = useDispatch();
 
     React.useEffect(() => {
       getUsersListFromFireStore()
-    },[])
+    },[]);
+    React.useEffect(() => {
+      if(showSuccessAlert){
+          setTimeout(() => {
+              setShowSuccessAlert(false)
+          },3000)
+      }
+  },[showSuccessAlert]);
 
     async function getUsersListFromFireStore(){
       let q = query(collection(db,'registered users'));
@@ -36,12 +46,10 @@ export default function Settings() {
       const promise = await Promise.all(changePositionList.map(user => setDoc(doc(db, "registered users", user.email), user)));
       dispatch(cleanChangeList());
       getUsersListFromFireStore()
-      console.log('success')
+      setShowSuccessAlert(true)
     } catch (error) {
       console.log(error.message)
     }
-      
-      
   }
   return (
       <Col md={12} className='mt-3'>
@@ -63,6 +71,22 @@ export default function Settings() {
           <div className='mx-auto'>Nobody pass register yet</div>
         }
         <Button variant='primary' disabled={!changePositionList.length} onClick={restoreUsersData}>Confirm change</Button>
+        {showSuccessAlert?
+        <Alert className='alert-message mx-auto' variant="success">
+        <Alert.Heading>Congratulations!</Alert.Heading>
+        <p className="text-center">Changes successfully saved.</p>
+        </Alert>
+        :
+        null
+        }
+        {error?
+        <Alert className='alert-message mx-auto' variant="danger" onClose={() => dispatch(setError(null))} dismissible>
+        <Alert.Heading>Alert!</Alert.Heading>
+        <p className="text-center">{error}</p>
+        </Alert>
+        :
+        null
+        }
       </Col>
   )
 }

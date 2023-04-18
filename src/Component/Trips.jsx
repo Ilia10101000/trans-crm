@@ -19,6 +19,7 @@ export default function Trips(){
     const {error} = useSelector(state => state.error);
     const {position} = useSelector(state => state.user);
     const dispatch = useDispatch();
+    console.log(tripsList)
 
 
     React.useEffect(() => {
@@ -43,7 +44,7 @@ export default function Trips(){
     async function storeDataToFireStore (tripParametres) {
         try {
           const userRef = collection(db, 'trips');
-          await setDoc(doc(userRef,`${tripParametres.departurePoint} - ${tripParametres.arrivalPoint}`), {
+          await setDoc(doc(userRef,`${tripParametres.departurePoint}-${tripParametres.arrivalPoint} - ${Date.now()}`), {
             ...tripParametres
           });
           setShowSuccessAlert(true);
@@ -52,6 +53,16 @@ export default function Trips(){
         } catch (error) {
           dispatch(setError(error.message));
         }
+    }
+
+    async function bookTrip(trip){
+        try {
+            await setDoc(doc(db, "trips", trip.route), {...trip.parametres, seatsCount: trip.parametres.seatsCount - 1});
+            getTripsListFromFireStore()
+            // setShowSuccessAlert(true)
+          } catch (error) {
+            console.log(error.message)
+          }
     }
 
     async function getTripsListFromFireStore(){
@@ -113,15 +124,19 @@ export default function Trips(){
                     <thead>
                       <tr>
                         <th>Route</th>
+                        <th>Date</th>
+                        <th>Free seats</th>
+                        <th>Price</th>
                         <th>Driver</th>
                         <th>Phone</th>
                         <th>Car</th>
                         <th>Number of Car</th>
                         <th>Conditions</th>
+                        <th>Book a trip</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {tripsList.map(trip => <TripItem key={trip.route} trip={{...trip}}/>)}
+                      {tripsList.map(trip => <TripItem key={trip.route} bookTrip={bookTrip} trip={{...trip}}/>)}
                     </tbody>
                   </Table>
                   :

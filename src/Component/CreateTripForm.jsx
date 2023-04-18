@@ -4,16 +4,21 @@ import { useDispatch, useSelector } from 'react-redux';
 import { setError } from '../store/errorReducer';
 import useCustomeRequestInputForm from '../hooks/useCustomeRequestInputForm';
 import PointsResponseResult from './PointsResponseResult';
+import { getAvailableTime } from '../timeHandler';
 
 
 
 export default function CreateTripForm({storeTripToFireStore}) {
+    
+    const {minDate, maxDate} = getAvailableTime();
 
     const [driverName, setDriverName] = React.useState('');
     const [phone, setPhone] = React.useState('');
+    const [price, setPrice] = React.useState('');
+    const [date, setDate] = React.useState(minDate);
     const [options, setOptions] = React.useState('');
     const [numberOfCar, setNumberOfCar] = React.useState('');
-    const [passagersCount, setPassagersCount] = React.useState('');
+    const [seatsCount, setSeatsCount] = React.useState('');
 
     const [car, setCar, carsResultsList, hundlerCarsItemPoint] = useCustomeRequestInputForm(getCars);
     const [departurePoint, setDeparturePoint, departureResultsList, hundlerDepartureItemPoint] = useCustomeRequestInputForm(getPoints);
@@ -21,6 +26,8 @@ export default function CreateTripForm({storeTripToFireStore}) {
 
     const {error} = useSelector(state => state.error);
     const dispatch = useDispatch();
+
+    
 
 
 
@@ -84,12 +91,14 @@ export default function CreateTripForm({storeTripToFireStore}) {
         storeTripToFireStore({
             driverName,
             phone,
+            price,
             options,
             numberOfCar,
             car,
             departurePoint,
             arrivalPoint,
-            passagersCount
+            seatsCount,
+            date
         })
 }
   return (
@@ -100,6 +109,17 @@ export default function CreateTripForm({storeTripToFireStore}) {
                     <Col md={6} className='d-flex justify-content-center mb-2'>
                         <FloatingLabel controlId="floatingInput" label={'Your name'} className="mb-3">
                             <Form.Control type="text" value={driverName} maxLength={20}  onChange={e =>hundlerInputChange(e, setDriverName)}  placeholder=" " autoComplete='off' required/>
+                        </FloatingLabel>
+                    </Col>
+                    <Col md={6} className='d-flex justify-content-center mb-2'>
+                        <FloatingLabel style={{width: "275px"}} controlId="floatingInput" label={'Date'} className="mb-3">
+                            <Form.Control type="datetime-local" value={date}  onChange={e =>hundlerInputChange(e, setDate)} min={minDate} max={maxDate}  placeholder=" " autoComplete='off' required/>
+                        </FloatingLabel>
+                    </Col>
+                    <Col md={6} className='d-flex justify-content-center mb-2'>
+                        <FloatingLabel style={{width: "275px"}} controlId="floatingInput" label={'Price for seat'} className="mb-3">
+                            <Form.Control type="number" value={price} maxLength={5} min={0} max={999} onChange={e =>hundlerInputChange(e, setPrice)}  placeholder=" " autoComplete='off' required/>
+                            <div className='input-prompt'>$</div>
                         </FloatingLabel>
                     </Col>
                     <Col md={6} className='d-flex justify-content-center mb-2'>
@@ -140,8 +160,8 @@ export default function CreateTripForm({storeTripToFireStore}) {
                     </div>
                     </Col>
                     <Col md={6} className='d-flex justify-content-center mb-2'>
-                        <FloatingLabel style={{width: "275px"}} controlId="floatingInput" label={'Passengers count'}>
-                            <Form.Control  type="number" value={passagersCount}  onChange={e =>hundlerInputChange(e, setPassagersCount)} min="1" max="15"  placeholder=" " autoComplete='off' required/>
+                        <FloatingLabel style={{width: "275px"}} controlId="floatingInput" label={'Seats count'}>
+                            <Form.Control  type="number" value={seatsCount}  onChange={e =>hundlerInputChange(e, setSeatsCount)} min={1} max={15}  placeholder=" " autoComplete='off' required/>
                         </FloatingLabel>
                     </Col>
                     <Col className='d-flex justify-content-center' md={12}>
