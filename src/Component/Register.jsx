@@ -1,12 +1,12 @@
 import React from 'react'
-import {createUserWithEmailAndPassword, getAuth} from 'firebase/auth';
-import { setUser } from '../store/userReducer';
+import { Button, Col, Container, Row, Stack, Alert, Form, InputGroup } from 'react-bootstrap';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, NavLink } from 'react-router-dom';
-import { Button, Col, Container, Row, Stack, Alert, Form } from 'react-bootstrap';
-import { setDoc, doc, collection } from 'firebase/firestore';
-import { db } from '../firebase/firebase';
+import { setUser } from '../store/userReducer';
 import { setError } from '../store/errorReducer';
+import {createUserWithEmailAndPassword} from 'firebase/auth';
+import { setDoc, doc, collection } from 'firebase/firestore';
+import { db,auth} from '../firebase/firebase';
 
 
 export default function Register() {
@@ -37,8 +37,6 @@ export default function Register() {
 
 
   const registerUser = async () => {
-    const auth = getAuth();
-
     try {
       const credentials = await createUserWithEmailAndPassword(auth, email, password);
 
@@ -73,11 +71,13 @@ export default function Register() {
                 <input type="text" minLength={2} value={name} onChange={e => setName(e.target.value)} className="form-control" id="floatingInputRegisterName" placeholder=" " required autoComplete='off'/>
                 <label htmlFor="floatingInputRegisterName">Your name</label>
             </div>
-            <div className="form-floating mb-3">
-                <input type="tel" maxLength={15} pattern='38[0-9]{3}-[0-9]{3}-[0-9]{2}-[0-9]{2}' value={phone} onChange={e => setPhone(e.target.value)} className="form-control" id="floatingInputRegisterPhone" placeholder=" " required autoComplete='off'/>
-                <label htmlFor="floatingInputRegisterPhone">Phone</label>
-                <div id="emailHelp" className="form-text">380XX-XXX-XX-XX</div>
-            </div>
+                <InputGroup style={{width: '275px'}} className="mb-3 ">
+                    <InputGroup.Text>+380</InputGroup.Text>
+                    <div className='form-floating'>
+                      <input type="text" value={phone} onChange={e => setPhone(e.target.value)} pattern='[0-9]{9}' className="form-control" id="floatingRegisterPhone" placeholder=" " maxLength={9} required autoComplete='off'/>
+                      <label htmlFor="floatingRegisterPhone">Phone</label>
+                    </div>
+                </InputGroup>   
             <div className="form-floating mb-3">
                 <input type="email" pattern='[a-zA-Z0-9_\.\+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-\.]+' value={email} onChange={e => setEmail(e.target.value)} className="form-control" id="floatingInputRegisterEmail" placeholder=" " required autoComplete='off'/>
                 <label htmlFor="floatingInputRegisterEmail">Email</label>

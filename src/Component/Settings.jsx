@@ -6,6 +6,7 @@ import { Button, Col, Alert,  Table} from "react-bootstrap";
 import { useDispatch, useSelector } from 'react-redux';
 import { cleanChangeList } from '../store/changeUserPositionListReducer';
 import { setError } from '../store/errorReducer';
+import RecaptchaContainer from './RecaptchaContainer';
 
 export default function Settings() {
     const [usersList, setUsersList] = React.useState([]);

@@ -1,9 +1,8 @@
 import React from 'react'
-import {signInWithEmailAndPassword, getAuth, signInWithPopup, GoogleAuthProvider} from 'firebase/auth';
+import {signInWithEmailAndPassword,signInWithPopup} from 'firebase/auth';
 import { setUser } from '../store/userReducer';
-import { googleProvider, facebookProvider} from '../firebase/firebase';
+import { googleProvider, facebookProvider, db, auth} from '../firebase/firebase';
 import { collection, getDocs, where, query } from 'firebase/firestore';
-import { db } from '../firebase/firebase';
 import { setError } from '../store/errorReducer';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
@@ -11,10 +10,12 @@ import { Button, Col, Container, Row, Stack, Alert } from 'react-bootstrap';
 import {FcGoogle} from 'react-icons/fc'
 import {GrFacebook} from 'react-icons/gr'
 import {BsPhone} from 'react-icons/bs'
+import RecaptchaContainer from './RecaptchaContainer';
 
 export default function Login() {
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
+  const [useSigninWithPhoneNumber, setUseSigninWithPhoneNumber] = React.useState(false);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -24,9 +25,8 @@ export default function Login() {
   async function signIn(e){
     e.preventDefault();
     try {
-      const auth = getAuth();
       const credentials = await signInWithEmailAndPassword(auth, email, password);
-      const user = await requestUserData(credentials.user.email);
+      const user = await requestUserData('email', credentials.user.email);
       dispatch(setUser(user));
       localStorage.setItem('register-user', JSON.stringify(user))
       navigate('/');
@@ -36,9 +36,9 @@ export default function Login() {
   };
 
 
-  async function requestUserData(email){
+  async function requestUserData(key, value){
     try {
-      let requestUserData = query(collection(db,'registered users'), where('email','==',email))
+      let requestUserData = query(collection(db,'registered users'), where(key,'==',value))
       const querySnapshot = await getDocs(requestUserData);
       return querySnapshot.docs[0].data()
     } catch (error) {
@@ -46,15 +46,13 @@ export default function Login() {
     }
   };
 
-
   async function signInByGoogle(){
     try {
-      const auth = getAuth();
       const result = await signInWithPopup(auth, googleProvider);
       let user;
       try {
-        user = await requestUserData(result.user.email);
-      } catch (error) {
+        user = await requestUserData('email', result.user.email);
+      } catch {
         user = {
         email: result.user.email,
         name: result.user.displayName || 'unknow',
@@ -72,7 +70,6 @@ export default function Login() {
 
   async function signInByFacebook(){
     try {
-      const auth = getAuth();
       const credentials = await signInWithPopup(auth, facebookProvider);
       console.log(credentials)
     } catch (error) {
@@ -110,11 +107,11 @@ export default function Login() {
                 <Stack direction='horizontal' gap={5} className='align-items-center'>
                   <span className='fs-2 party-service-icon' onClick={signInByGoogle}><FcGoogle/></span>
                   <span className='fs-2 party-service-icon' onClick={signInByFacebook}><GrFacebook/></span>
-                  <span className='fs-2 party-service-icon'><BsPhone/></span>
+                  <span className='fs-2 party-service-icon' onClick={() => setUseSigninWithPhoneNumber(true)}><BsPhone/></span>
                 </Stack>
               </div>
             </Stack>
-            {error?
+            {error && !useSigninWithPhoneNumber?
             <Alert className='alert-message' variant="danger" onClose={() => dispatch(setError(null))} dismissible>
             <Alert.Heading>Alert!</Alert.Heading>
             <p>{error}</p>
@@ -123,6 +120,10 @@ export default function Login() {
             null
             }
           </Col>
+          {useSigninWithPhoneNumber?
+            <RecaptchaContainer getUserFromStore={requestUserData} close={() => setUseSigninWithPhoneNumber(false)}/>
+            :null
+          }
         </Row>
 
     </Container>
