@@ -27,7 +27,7 @@ export default function Register() {
         try {
           const userRef = collection(db, 'registered users');
           await setDoc(doc(userRef,email), {
-            name,email,phone, position: email === 'ilya.krasnoper@gmail.com'?'Admin':position
+            name,email,phone: '+380' + phone, position: email === 'ilya.krasnoper@gmail.com'?'Admin':position
           })
         } catch (error) {
           dispatch(setError(error.message));
@@ -43,7 +43,7 @@ export default function Register() {
       const user = {
         email,
         name,
-        phone,
+        phone: '+380' + phone,
         position: email === 'ilya.krasnoper@gmail.com'?'Admin':position,
       }
       dispatch(setUser(user));

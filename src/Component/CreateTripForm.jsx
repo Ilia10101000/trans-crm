@@ -1,10 +1,15 @@
 import React from 'react'
-import { Button, Col, Row, Alert, Form, FloatingLabel } from 'react-bootstrap'
+import { Button, Col, Row, Alert, Form, FloatingLabel, InputGroup } from 'react-bootstrap'
 import { useDispatch, useSelector } from 'react-redux';
 import { setError } from '../store/errorReducer';
 import useCustomeRequestInputForm from '../hooks/useCustomeRequestInputForm';
 import PointsResponseResult from './PointsResponseResult';
 import { getAvailableTime } from '../timeHandler';
+import {MdAirlineSeatReclineNormal} from 'react-icons/md';
+import {FaPlaneDeparture, FaPlaneArrival} from 'react-icons/fa';
+import {BsCurrencyDollar} from 'react-icons/bs';
+import {IoIosMan} from 'react-icons/io';
+import {AiOutlineCalendar, AiFillCar, AiOutlineNumber} from 'react-icons/ai';
 
 
 
@@ -90,7 +95,7 @@ export default function CreateTripForm({storeTripToFireStore}) {
         event.preventDefault();
         storeTripToFireStore({
             driverName,
-            phone,
+            phone: '+380' + phone,
             price,
             options,
             numberOfCar,
@@ -107,62 +112,115 @@ export default function CreateTripForm({storeTripToFireStore}) {
             <form onSubmit={storeDataToFireStore}>
                 <Row>
                     <Col md={6} className='d-flex justify-content-center mb-2'>
-                        <FloatingLabel controlId="floatingInput" label={'Your name'} className="mb-3">
+                        <InputGroup style={{width: '275px'}} className="mb-3 ">
+                            <InputGroup.Text><IoIosMan/></InputGroup.Text>
+                            <div className='form-floating'>
+                            <input type="text" value={driverName} onChange={e =>hundlerInputChange(e, setDriverName)} className="form-control" id="floatingRegisterName" placeholder=" " maxLength={10} required autoComplete='off'/>
+                            <label htmlFor="floatingRegisterName">Your name</label>
+                            </div>
+                        </InputGroup>   
+                        {/* <FloatingLabel controlId="floatingInput" label={'Your name'} className="mb-3">
                             <Form.Control type="text" value={driverName} maxLength={20}  onChange={e =>hundlerInputChange(e, setDriverName)}  placeholder=" " autoComplete='off' required/>
-                        </FloatingLabel>
+                        </FloatingLabel> */}
                     </Col>
                     <Col md={6} className='d-flex justify-content-center mb-2'>
-                        <FloatingLabel style={{width: "275px"}} controlId="floatingInput" label={'Date'} className="mb-3">
+                        <InputGroup style={{width: '275px'}} className="mb-3 ">
+                            <InputGroup.Text><AiOutlineCalendar/></InputGroup.Text>
+                            <div className='form-floating'>
+                            <input type="datetime-local" value={date} onChange={e =>hundlerInputChange(e, setDate)} className="form-control" min={minDate} max={maxDate} id="floatingRegisterDate" placeholder=" " autoComplete='off' required/>
+                            <label htmlFor="floatingRegisterDate">Date</label>
+                            </div>
+                        </InputGroup>   
+                        {/* <FloatingLabel style={{width: "275px"}} controlId="floatingInput" label={'Date'} className="mb-3">
                             <Form.Control type="datetime-local" value={date}  onChange={e =>hundlerInputChange(e, setDate)} min={minDate} max={maxDate}  placeholder=" " autoComplete='off' required/>
-                        </FloatingLabel>
+                        </FloatingLabel> */}
                     </Col>
                     <Col md={6} className='d-flex justify-content-center mb-2'>
-                        <FloatingLabel style={{width: "275px"}} controlId="floatingInput" label={'Price for seat'} className="mb-3">
-                            <Form.Control type="number" value={price} maxLength={5} min={0} max={999} onChange={e =>hundlerInputChange(e, setPrice)}  placeholder=" " autoComplete='off' required/>
-                            <div className='input-prompt'>$</div>
-                        </FloatingLabel>
-                    </Col>
-                    <Col md={6} className='d-flex justify-content-center mb-2'>
-                        <div className='custome-input'>
-                            <FloatingLabel controlId="floatingInput" label={'Phone number'} className="mb-3" >
-                                <Form.Control type="text" value={phone} pattern='38[0-9]{3}-[0-9]{3}-[0-9]{2}-[0-9]{2}' onChange={e =>hundlerInputChange(e, setPhone)} maxLength={15} placeholder=" " autoComplete='off' required/>
-                            <div className='input-prompt'>380XX-XXX-XX-XX</div>
-                            </FloatingLabel>               
+                    <InputGroup style={{width: '275px'}} className="mb-3 ">
+                        <InputGroup.Text><BsCurrencyDollar/></InputGroup.Text>
+                        <div className='form-floating'>
+                        <input type="number" value={price} onChange={e =>hundlerInputChange(e, setPrice)} className="form-control" id="floatingRegisterPrice" placeholder=" " max={999} autoComplete='off' required/>
+                        <label htmlFor="floatingRegisterPrice">Price</label>
                         </div>
+                    </InputGroup>   
+                    </Col>
+                    <Col md={6} className='d-flex justify-content-center mb-2'>
+                    <InputGroup style={{width: '275px'}} className="mb-3 ">
+                        <InputGroup.Text>+380</InputGroup.Text>
+                        <div className='form-floating'>
+                        <input type="text" value={phone} onChange={e =>hundlerInputChange(e, setPhone)} pattern='[0-9]{9}' className="form-control" id="floatingRegisterPhone" placeholder=" " maxLength={9} autoComplete='off' required/>
+                        <label htmlFor="floatingRegisterPhone">Phone</label>
+                        </div>
+                    </InputGroup>   
                     </Col>
                     <Col md={6} className='d-flex justify-content-center mb-2'>
                     <div className='custome-request-input'>
-                        <FloatingLabel controlId="floatingInput" label={'Set your car'} className="mb-3 ">
+                    <InputGroup style={{width: '275px'}} className="mb-3 ">
+                        <InputGroup.Text><AiFillCar/></InputGroup.Text>
+                        <div className='form-floating'>
+                        <input type="text" value={car} onChange={setCar} className="form-control" id="floatingRegisterCar" placeholder=" " maxLength={9} autoComplete='off' required/>
+                        <label htmlFor="floatingRegisterCar">Car</label>
+                        </div>
+                    </InputGroup>   
+                        {/* <FloatingLabel controlId="floatingInput" label={'Set your car'} className="mb-3 ">
                             <Form.Control type="text" value={car} onChange={setCar} placeholder=" " autoComplete='off' required/>
-                        </FloatingLabel>
+                        </FloatingLabel> */}
                         <PointsResponseResult name={'car'} result={carsResultsList} clickHandler={ hundlerCarsItemPoint}/>
                     </div>
                     </Col>
                     <Col md={6} className='d-flex justify-content-center mb-2'>
-                        <FloatingLabel controlId="floatingInput" label={'Number of your car'} className="mb-3">
+                    <InputGroup style={{width: '275px'}} className="mb-3 ">
+                        <InputGroup.Text><AiOutlineNumber/></InputGroup.Text>
+                        <div className='form-floating'>
+                        <input type="text" value={numberOfCar} onChange={e =>hundlerInputChange(e, setNumberOfCar)} className="form-control" id="floatingRegisterPhone" placeholder=" " maxLength={12} autoComplete='off'required/>
+                        <label htmlFor="floatingRegisterPhone">Number of your car</label>
+                        </div>
+                    </InputGroup>   
+                        {/* <FloatingLabel controlId="floatingInput" label={'Number of your car'} className="mb-3">
                             <Form.Control type="text" value={numberOfCar} onChange={e =>hundlerInputChange(e, setNumberOfCar)} maxLength={12} placeholder=" " autoComplete='off' required/>
-                        </FloatingLabel>
+                        </FloatingLabel> */}
                     </Col>
                     <Col md={6} className='d-flex justify-content-center mb-2'>
                     <div className='custome-request-input'>
-                        <FloatingLabel controlId="floatingInput" label={'Departure point'} className="mb-3">
+                        <InputGroup style={{width: '275px'}} className="mb-3 ">
+                            <InputGroup.Text><FaPlaneDeparture/></InputGroup.Text>
+                            <div className='form-floating'>
+                            <input type="text" value={departurePoint} onChange={setDeparturePoint}  className="form-control" id="floatingRegisterDeparture" placeholder=" " autoComplete='off'required/>
+                            <label htmlFor="floatingRegisterDeparture">Departure</label>
+                            </div>
+                        </InputGroup>   
+                        {/* <FloatingLabel controlId="floatingInput" label={'Departure point'} className="mb-3">
                             <Form.Control type="text" value={departurePoint} onChange={setDeparturePoint} placeholder=" " autoComplete='off' required/>
-                        </FloatingLabel>
+                        </FloatingLabel> */}
                         <PointsResponseResult name={'departure point'} result={departureResultsList} clickHandler={hundlerDepartureItemPoint}/>
                     </div>
                     </Col>
                     <Col md={6} className='d-flex justify-content-center mb-2'>
                     <div className='custome-request-input'>
-                        <FloatingLabel controlId="floatingInput" label={'Arrival point'} className="mb-3">
+                        <InputGroup style={{width: '275px'}} className="mb-3 ">
+                            <InputGroup.Text><FaPlaneArrival/></InputGroup.Text>
+                            <div className='form-floating'>
+                            <input type="text" value={arrivalPoint} onChange={setArrivalPoint}  className="form-control" id="floatingRegisterArrival" placeholder=" " autoComplete='off'required/>
+                            <label htmlFor="floatingRegisterArrival">Arrival</label>
+                            </div>
+                        </InputGroup>   
+                        {/* <FloatingLabel controlId="floatingInput" label={'Arrival point'} className="mb-3">
                             <Form.Control type="text" value={arrivalPoint} onChange={setArrivalPoint} placeholder=" " autoComplete='off' required/>
-                        </FloatingLabel>
+                        </FloatingLabel> */}
                         <PointsResponseResult name={'arrival point'} result={arrivalResultsList} clickHandler={ hundlerArrivalItemPoint}/>
                     </div>
                     </Col>
                     <Col md={6} className='d-flex justify-content-center mb-2'>
-                        <FloatingLabel style={{width: "275px"}} controlId="floatingInput" label={'Seats count'}>
+                        <InputGroup style={{width: '275px'}} className="mb-3 ">
+                            <InputGroup.Text><MdAirlineSeatReclineNormal/></InputGroup.Text>
+                            <div className='form-floating'>
+                            <input type="number" value={seatsCount} onChange={e =>hundlerInputChange(e, setSeatsCount)}  className="form-control" id="floatingRegisterSeats"  min={1} max={15} placeholder=" " autoComplete='off'required/>
+                            <label htmlFor="floatingRegisterSeats">Arrival</label>
+                            </div>
+                        </InputGroup>   
+                        {/* <FloatingLabel style={{width: "275px"}} controlId="floatingInput" label={'Seats count'}>
                             <Form.Control  type="number" value={seatsCount}  onChange={e =>hundlerInputChange(e, setSeatsCount)} min={1} max={15}  placeholder=" " autoComplete='off' required/>
-                        </FloatingLabel>
+                        </FloatingLabel> */}
                     </Col>
                     <Col className='d-flex justify-content-center' md={12}>
                         <div className=" w-75 custome-input">

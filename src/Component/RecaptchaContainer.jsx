@@ -4,8 +4,14 @@ import { useDispatch, useSelector } from 'react-redux';
 import { setError } from '../store/errorReducer';
 import {RecaptchaVerifier, signInWithPhoneNumber} from 'firebase/auth';
 import { auth } from '../firebase/firebase';
+import { setUser } from '../store/userReducer';
+import { useNavigate } from 'react-router-dom';
+
+
 
 export default function RecaptchaContainer({close, getUserFromStore}) {
+
+
     const [expandForm, setExpandForm] = React.useState(false);
     const [phoneNumber, setPhoneNumber] = React.useState('');
     const [verificationCode, setVerificationCode] = React.useState('');
@@ -13,6 +19,7 @@ export default function RecaptchaContainer({close, getUserFromStore}) {
 
     const {error} = useSelector(state => state.error);
     const dispatch = useDispatch();
+    const navigate = useNavigate();
 
     React.useEffect(() => {
         if(error){
@@ -89,6 +96,9 @@ export default function RecaptchaContainer({close, getUserFromStore}) {
                         position:'User'
                     }
                 }
+                dispatch(setUser(user))
+                localStorage.setItem('register-user', JSON.stringify(user))
+                navigate('/')
             } catch (error) {
                 dispatch(setError(error.message));
             } finally {
