@@ -1,6 +1,6 @@
 import React from 'react';
 import { Form } from 'react-bootstrap';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { addForChangePosition, removeFromChangePositionList, rechangeSelectedPosition } from '../store/changeUserPositionListReducer';
 
 const positionList = ['Admin', 'User','Driver'];
@@ -8,6 +8,7 @@ const positionList = ['Admin', 'User','Driver'];
 export default function UserItem({parametres,position, changeList}) {
 
   const [currentPosition, setCurrentPosition] = React.useState(parametres.position);
+  const {isDark} = useSelector(state => state.theme)
   const dispatch = useDispatch();
 
   function hundlerChangePosition(selectedPosition){
@@ -21,7 +22,7 @@ export default function UserItem({parametres,position, changeList}) {
     if(selectedPosition !== parametres.position && !changeList.some(item => item.email === parametres.email)){
       console.log('Ставлю новую позицию!')
       dispatch(addForChangePosition({
-        ...parametres, position:selectedPosition
+        email:parametres.email, position:selectedPosition
       }))
     } if(selectedPosition !== parametres.position && changeList.some(item => item.email === parametres.email)){
       console.log('Перезаписываю позицию!')
@@ -37,7 +38,7 @@ export default function UserItem({parametres,position, changeList}) {
         {
           position === 'Admin' && parametres.email !== 'ilya.krasnoper@gmail.com'?
           <td>
-              <Form.Select onChange={event => hundlerChangePosition(event.target.value)} size="sm">
+              <Form.Select className={` ${isDark?'text-bg-dark':''}`} onChange={event => hundlerChangePosition(event.target.value)} size="sm">
                 <option>{currentPosition}</option>
                 {positionList.filter(pos => pos !== currentPosition).map(pos => <option key={pos}>{pos}</option>)}
               </Form.Select>

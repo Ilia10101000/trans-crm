@@ -1,26 +1,29 @@
-import React from 'react'
-import {signInWithEmailAndPassword,signInWithPopup} from 'firebase/auth';
+import React from 'react';
+import {BsFillSunFill, BsFillMoonFill, BsPhone} from 'react-icons/bs'
+import {signInWithEmailAndPassword,signInWithPopup, linkWithPopup, FacebookAuthProvider} from 'firebase/auth';
 import { setUser } from '../store/userReducer';
 import { googleProvider, facebookProvider, db, auth} from '../firebase/firebase';
 import { collection, getDocs, where, query } from 'firebase/firestore';
 import { setError } from '../store/errorReducer';
+import { changeThemeMode } from '../store/themeReducer';
 import { useDispatch, useSelector } from 'react-redux';
-import { Link, NavLink, useNavigate } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { Button, Col, Container, Row, Stack, Alert } from 'react-bootstrap';
 import {FcGoogle} from 'react-icons/fc'
 import {GrFacebook} from 'react-icons/gr'
-import {BsPhone} from 'react-icons/bs'
 import RecaptchaContainer from './RecaptchaContainer';
 
 export default function Login() {
+
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
   const [useSigninWithPhoneNumber, setUseSigninWithPhoneNumber] = React.useState(false);
+  const [loading, setLoading] = useSelector(false);
+  const [error, setError] = useSelector(false);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const {loading} = useSelector(state => state.loading);
-  const {error} = useSelector(state => state.error);
+  const {isDark} = useSelector(state => state.theme)
 
   async function signIn(e){
     e.preventDefault();
@@ -46,9 +49,10 @@ export default function Login() {
     }
   };
 
-  async function signInByGoogle(){
+
+  async function signInByProvider(provider){
     try {
-      const result = await signInWithPopup(auth, googleProvider);
+      const result = await signInWithPopup(auth, provider);
       let user;
       try {
         user = await requestUserData('email', result.user.email);
@@ -64,34 +68,25 @@ export default function Login() {
       localStorage.setItem('register-user', JSON.stringify(user))
       navigate('/')
     } catch (error) {
-      dispatch(setError(error.message));
+      setError(error.message);
     }
   };
-
-  async function signInByFacebook(){
-    try {
-      const credentials = await signInWithPopup(auth, facebookProvider);
-      console.log(credentials)
-    } catch (error) {
-      dispatch(setError(error.message));
-    }
-    
-  }
-
+  
   return (
-    <Container fluid>
+    <Container fluid className={`${isDark?'text-bg-dark':''}`}>
         <Row className='d-flex justify-content-center align-items-center min-vh-100'>
           <Col xs={5} className='d-flex flex-column justify-content-center align-items-center'>
+            <div className='toogleThemeIcon' onClick={() => dispatch(changeThemeMode())}>{isDark?<BsFillSunFill/>:<BsFillMoonFill/>}</div>
             <h2 className='mb-5'>Login</h2>
             <form onSubmit={signIn}>
               <Stack className=' d-flex flex-column align-items-center' gap={3}>
                 <div className="form-floating mb-3">
-                    <input type="email" pattern='[a-zA-Z0-9_\.\+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-\.]+' value={email} onChange={e => setEmail(e.target.value)} className="form-control" id="floatingInputLoginEmail" placeholder=" " autoComplete='off' required/>
+                    <input type="email" pattern='[a-zA-Z0-9_\.\+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-\.]+' value={email} onChange={e => setEmail(e.target.value)} className={`form-control ${isDark?'text-bg-dark':''}`} id="floatingInputLoginEmail" placeholder=" " autoComplete='off' required/>
                     <label htmlFor="floatingInputLoginEmail">Email</label>
                     <div id="emailHelp" className="form-text"></div>
                 </div>
                 <div className="form-floating">
-                    <input type="password" value={password} minLength={6} onChange={e => setPassword(e.target.value)} className="form-control" id="floatingLoginPassword" placeholder=" " autoComplete='off' required/>
+                    <input type="password" value={password} minLength={6} onChange={e => setPassword(e.target.value)} className={`form-control ${isDark?'text-bg-dark':''}`} id="floatingLoginPassword" placeholder=" " autoComplete='off' required/>
                     <label htmlFor="floatingLoginPassword">Password</label>
                     <div id="emailHelp" className="form-text">No less than 6 characters</div>
                 </div>
@@ -105,8 +100,8 @@ export default function Login() {
               <div>Or use party services to login</div>
               <div>
                 <Stack direction='horizontal' gap={5} className='align-items-center'>
-                  <span className='fs-2 party-service-icon' onClick={signInByGoogle}><FcGoogle/></span>
-                  <span className='fs-2 party-service-icon' onClick={signInByFacebook}><GrFacebook/></span>
+                  <span className='fs-2 party-service-icon' onClick={() => signInByProvider(googleProvider)}><FcGoogle/></span>
+                  <span className='fs-2 party-service-icon' onClick={() => signInByProvider(facebookProvider)}><GrFacebook/></span>
                   <span className='fs-2 party-service-icon' onClick={() => setUseSigninWithPhoneNumber(true)}><BsPhone/></span>
                 </Stack>
               </div>
@@ -125,7 +120,6 @@ export default function Login() {
             :null
           }
         </Row>
-
     </Container>
   )
 }

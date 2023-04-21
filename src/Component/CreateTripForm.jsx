@@ -30,6 +30,7 @@ export default function CreateTripForm({storeTripToFireStore}) {
     const [arrivalPoint, setArrivalPoint, arrivalResultsList, hundlerArrivalItemPoint] = useCustomeRequestInputForm(getPoints);
 
     const {error} = useSelector(state => state.error);
+    const {isDark} = useSelector(state => state.theme)
     const dispatch = useDispatch();
 
     
@@ -113,9 +114,9 @@ export default function CreateTripForm({storeTripToFireStore}) {
                 <Row>
                     <Col md={6} className='d-flex justify-content-center mb-2'>
                         <InputGroup style={{width: '275px'}} className="mb-3 ">
-                            <InputGroup.Text><IoIosMan/></InputGroup.Text>
+                            <InputGroup.Text className={`${isDark?'text-bg-dark':''}`} ><IoIosMan/></InputGroup.Text>
                             <div className='form-floating'>
-                            <input type="text" value={driverName} onChange={e =>hundlerInputChange(e, setDriverName)} className="form-control" id="floatingRegisterName" placeholder=" " maxLength={10} required autoComplete='off'/>
+                            <input type="text" value={driverName} onChange={e =>hundlerInputChange(e, setDriverName)} className={`form-control ${isDark?'text-bg-dark':''}`} id="floatingRegisterName" placeholder=" " maxLength={10} required autoComplete='off'/>
                             <label htmlFor="floatingRegisterName">Your name</label>
                             </div>
                         </InputGroup>   
@@ -125,9 +126,9 @@ export default function CreateTripForm({storeTripToFireStore}) {
                     </Col>
                     <Col md={6} className='d-flex justify-content-center mb-2'>
                         <InputGroup style={{width: '275px'}} className="mb-3 ">
-                            <InputGroup.Text><AiOutlineCalendar/></InputGroup.Text>
+                            <InputGroup.Text className={`${isDark?'text-bg-dark':''}`}><AiOutlineCalendar/></InputGroup.Text>
                             <div className='form-floating'>
-                            <input type="datetime-local" value={date} onChange={e =>hundlerInputChange(e, setDate)} className="form-control" min={minDate} max={maxDate} id="floatingRegisterDate" placeholder=" " autoComplete='off' required/>
+                            <input type="datetime-local" value={date} onChange={e =>hundlerInputChange(e, setDate)} className={`form-control ${isDark?'text-bg-dark':''}`} min={minDate} max={maxDate} id="floatingRegisterDate" placeholder=" " autoComplete='off' required/>
                             <label htmlFor="floatingRegisterDate">Date</label>
                             </div>
                         </InputGroup>   
@@ -137,18 +138,18 @@ export default function CreateTripForm({storeTripToFireStore}) {
                     </Col>
                     <Col md={6} className='d-flex justify-content-center mb-2'>
                     <InputGroup style={{width: '275px'}} className="mb-3 ">
-                        <InputGroup.Text><BsCurrencyDollar/></InputGroup.Text>
+                        <InputGroup.Text className={`${isDark?'text-bg-dark':''}`}><BsCurrencyDollar/></InputGroup.Text>
                         <div className='form-floating'>
-                        <input type="number" value={price} onChange={e =>hundlerInputChange(e, setPrice)} className="form-control" id="floatingRegisterPrice" placeholder=" " max={999} autoComplete='off' required/>
+                        <input type="number" value={price} onChange={e =>hundlerInputChange(e, setPrice)} className={`form-control ${isDark?'text-bg-dark':''}`} id="floatingRegisterPrice" placeholder=" " max={999} autoComplete='off' required/>
                         <label htmlFor="floatingRegisterPrice">Price</label>
                         </div>
                     </InputGroup>   
                     </Col>
                     <Col md={6} className='d-flex justify-content-center mb-2'>
                     <InputGroup style={{width: '275px'}} className="mb-3 ">
-                        <InputGroup.Text>+380</InputGroup.Text>
+                        <InputGroup.Text className={`${isDark?'text-bg-dark':''}`}>+380</InputGroup.Text>
                         <div className='form-floating'>
-                        <input type="text" value={phone} onChange={e =>hundlerInputChange(e, setPhone)} pattern='[0-9]{9}' className="form-control" id="floatingRegisterPhone" placeholder=" " maxLength={9} autoComplete='off' required/>
+                        <input type="text" value={phone} onChange={e =>hundlerInputChange(e, setPhone)} pattern='[0-9]{9}' className={`form-control ${isDark?'text-bg-dark':''}`} id="floatingRegisterPhone" placeholder=" " maxLength={9} autoComplete='off' required/>
                         <label htmlFor="floatingRegisterPhone">Phone</label>
                         </div>
                     </InputGroup>   
@@ -156,23 +157,23 @@ export default function CreateTripForm({storeTripToFireStore}) {
                     <Col md={6} className='d-flex justify-content-center mb-2'>
                     <div className='custome-request-input'>
                     <InputGroup style={{width: '275px'}} className="mb-3 ">
-                        <InputGroup.Text><AiFillCar/></InputGroup.Text>
+                        <InputGroup.Text className={`${isDark?'text-bg-dark':''}`}><AiFillCar/></InputGroup.Text>
                         <div className='form-floating'>
-                        <input type="text" value={car} onChange={setCar} className="form-control" id="floatingRegisterCar" placeholder=" " maxLength={9} autoComplete='off' required/>
+                        <input type="text" value={car} onChange={setCar} className={`form-control ${isDark?'text-bg-dark':''}`} id="floatingRegisterCar" placeholder=" " maxLength={9} autoComplete='off' required/>
                         <label htmlFor="floatingRegisterCar">Car</label>
                         </div>
                     </InputGroup>   
                         {/* <FloatingLabel controlId="floatingInput" label={'Set your car'} className="mb-3 ">
                             <Form.Control type="text" value={car} onChange={setCar} placeholder=" " autoComplete='off' required/>
                         </FloatingLabel> */}
-                        <PointsResponseResult name={'car'} result={carsResultsList} clickHandler={ hundlerCarsItemPoint}/>
+                        <PointsResponseResult isDark={isDark} name={'car'} result={carsResultsList} clickHandler={ hundlerCarsItemPoint}/>
                     </div>
                     </Col>
                     <Col md={6} className='d-flex justify-content-center mb-2'>
                     <InputGroup style={{width: '275px'}} className="mb-3 ">
-                        <InputGroup.Text><AiOutlineNumber/></InputGroup.Text>
+                        <InputGroup.Text className={`${isDark?'text-bg-dark':''}`}><AiOutlineNumber/></InputGroup.Text>
                         <div className='form-floating'>
-                        <input type="text" value={numberOfCar} onChange={e =>hundlerInputChange(e, setNumberOfCar)} className="form-control" id="floatingRegisterPhone" placeholder=" " maxLength={12} autoComplete='off'required/>
+                        <input type="text" value={numberOfCar} onChange={e =>hundlerInputChange(e, setNumberOfCar)} className={`form-control ${isDark?'text-bg-dark':''}`} id="floatingRegisterPhone" placeholder=" " maxLength={12} autoComplete='off'required/>
                         <label htmlFor="floatingRegisterPhone">Number of your car</label>
                         </div>
                     </InputGroup>   
@@ -183,39 +184,39 @@ export default function CreateTripForm({storeTripToFireStore}) {
                     <Col md={6} className='d-flex justify-content-center mb-2'>
                     <div className='custome-request-input'>
                         <InputGroup style={{width: '275px'}} className="mb-3 ">
-                            <InputGroup.Text><FaPlaneDeparture/></InputGroup.Text>
+                            <InputGroup.Text className={`${isDark?'text-bg-dark':''}`}><FaPlaneDeparture/></InputGroup.Text>
                             <div className='form-floating'>
-                            <input type="text" value={departurePoint} onChange={setDeparturePoint}  className="form-control" id="floatingRegisterDeparture" placeholder=" " autoComplete='off'required/>
+                            <input type="text" value={departurePoint} onChange={setDeparturePoint}  className={`form-control ${isDark?'text-bg-dark':''}`} id="floatingRegisterDeparture" placeholder=" " autoComplete='off'required/>
                             <label htmlFor="floatingRegisterDeparture">Departure</label>
                             </div>
                         </InputGroup>   
                         {/* <FloatingLabel controlId="floatingInput" label={'Departure point'} className="mb-3">
                             <Form.Control type="text" value={departurePoint} onChange={setDeparturePoint} placeholder=" " autoComplete='off' required/>
                         </FloatingLabel> */}
-                        <PointsResponseResult name={'departure point'} result={departureResultsList} clickHandler={hundlerDepartureItemPoint}/>
+                        <PointsResponseResult isDark={isDark} name={'departure point'} result={departureResultsList} clickHandler={hundlerDepartureItemPoint}/>
                     </div>
                     </Col>
                     <Col md={6} className='d-flex justify-content-center mb-2'>
                     <div className='custome-request-input'>
                         <InputGroup style={{width: '275px'}} className="mb-3 ">
-                            <InputGroup.Text><FaPlaneArrival/></InputGroup.Text>
+                            <InputGroup.Text className={`${isDark?'text-bg-dark':''}`}><FaPlaneArrival/></InputGroup.Text>
                             <div className='form-floating'>
-                            <input type="text" value={arrivalPoint} onChange={setArrivalPoint}  className="form-control" id="floatingRegisterArrival" placeholder=" " autoComplete='off'required/>
+                            <input type="text" value={arrivalPoint} onChange={setArrivalPoint}  className={`form-control ${isDark?'text-bg-dark':''}`} id="floatingRegisterArrival" placeholder=" " autoComplete='off'required/>
                             <label htmlFor="floatingRegisterArrival">Arrival</label>
                             </div>
                         </InputGroup>   
                         {/* <FloatingLabel controlId="floatingInput" label={'Arrival point'} className="mb-3">
                             <Form.Control type="text" value={arrivalPoint} onChange={setArrivalPoint} placeholder=" " autoComplete='off' required/>
                         </FloatingLabel> */}
-                        <PointsResponseResult name={'arrival point'} result={arrivalResultsList} clickHandler={ hundlerArrivalItemPoint}/>
+                        <PointsResponseResult isDark={isDark} name={'arrival point'} result={arrivalResultsList} clickHandler={ hundlerArrivalItemPoint}/>
                     </div>
                     </Col>
                     <Col md={6} className='d-flex justify-content-center mb-2'>
                         <InputGroup style={{width: '275px'}} className="mb-3 ">
-                            <InputGroup.Text><MdAirlineSeatReclineNormal/></InputGroup.Text>
+                            <InputGroup.Text className={`${isDark?'text-bg-dark':''}`}><MdAirlineSeatReclineNormal/></InputGroup.Text>
                             <div className='form-floating'>
-                            <input type="number" value={seatsCount} onChange={e =>hundlerInputChange(e, setSeatsCount)}  className="form-control" id="floatingRegisterSeats"  min={1} max={15} placeholder=" " autoComplete='off'required/>
-                            <label htmlFor="floatingRegisterSeats">Arrival</label>
+                            <input type="number" value={seatsCount} onChange={e =>hundlerInputChange(e, setSeatsCount)}  className={`form-control ${isDark?'text-bg-dark':''}`} id="floatingRegisterSeats"  min={1} max={15} placeholder=" " autoComplete='off'required/>
+                            <label htmlFor="floatingRegisterSeats">Seats count</label>
                             </div>
                         </InputGroup>   
                         {/* <FloatingLabel style={{width: "275px"}} controlId="floatingInput" label={'Seats count'}>
@@ -225,7 +226,7 @@ export default function CreateTripForm({storeTripToFireStore}) {
                     <Col className='d-flex justify-content-center' md={12}>
                         <div className=" w-75 custome-input">
                             <label htmlFor="trip-text-area" className="form-label">Conditions (optional)</label>
-                            <textarea value={options} onChange={e =>hundlerInputChange(e, setOptions)} className="form-control trip-text-area" id="trip-text-area" rows="3" maxLength={100}></textarea>
+                            <textarea value={options} onChange={e =>hundlerInputChange(e, setOptions)} className={`form-control trip-text-area ${isDark?'text-bg-dark':''}`} id="trip-text-area" rows="3" maxLength={100}></textarea>
                             <div className="input-prompt">{100 - options.length}</div>
                         </div>
                     </Col>

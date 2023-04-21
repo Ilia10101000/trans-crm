@@ -1,7 +1,9 @@
-import React from 'react'
+import React from 'react';
+import {BsFillSunFill, BsFillMoonFill} from 'react-icons/bs'
 import { Button, Col, Container, Row, Stack, Alert, Form, InputGroup } from 'react-bootstrap';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, NavLink } from 'react-router-dom';
+import { changeThemeMode } from '../store/themeReducer';
 import { setUser } from '../store/userReducer';
 import { setError } from '../store/errorReducer';
 import {createUserWithEmailAndPassword} from 'firebase/auth';
@@ -21,6 +23,7 @@ export default function Register() {
 
   const {loading} = useSelector(state => state.loading);
   const {error} = useSelector(state => state.error);
+  const {isDark} = useSelector(state => state.theme)
 
 
   const setUsersDataInFSDB = async () => {
@@ -61,29 +64,30 @@ export default function Register() {
   }
 
   return (
-    <Container fluid>
+    <Container fluid className={`${isDark?'text-bg-dark':''}`}>
     <Row className='d-flex justify-content-center align-items-center min-vh-100'>
       <Col xs={5} className='d-flex flex-column justify-content-center align-items-center'>
+        <div className='toogleThemeIcon' onClick={() => dispatch(changeThemeMode())}>{isDark?<BsFillSunFill/>:<BsFillMoonFill/>}</div>
         <h2 className='mb-5'>Register</h2>
         <form onSubmit={signUp}>
           <Stack className='align-items-center' gap={3}>
             <div className="form-floating mb-3">
-                <input type="text" minLength={2} value={name} onChange={e => setName(e.target.value)} className="form-control" id="floatingInputRegisterName" placeholder=" " required autoComplete='off'/>
+                <input type="text" minLength={2} value={name} onChange={e => setName(e.target.value)} className={`form-control ${isDark?'text-bg-dark':''}`} id="floatingInputRegisterName" placeholder=" " required autoComplete='off'/>
                 <label htmlFor="floatingInputRegisterName">Your name</label>
             </div>
                 <InputGroup style={{width: '275px'}} className="mb-3 ">
-                    <InputGroup.Text>+380</InputGroup.Text>
+                    <InputGroup.Text className={`${isDark?'text-bg-dark':''}`}>+380</InputGroup.Text>
                     <div className='form-floating'>
-                      <input type="text" value={phone} onChange={e => setPhone(e.target.value)} pattern='[0-9]{9}' className="form-control" id="floatingRegisterPhone" placeholder=" " maxLength={9} required autoComplete='off'/>
+                      <input type="text" value={phone} onChange={e => setPhone(e.target.value)} pattern='[0-9]{9}' className={`form-control ${isDark?'text-bg-dark':''}`} id="floatingRegisterPhone" placeholder=" " maxLength={9} required autoComplete='off'/>
                       <label htmlFor="floatingRegisterPhone">Phone</label>
                     </div>
                 </InputGroup>   
             <div className="form-floating mb-3">
-                <input type="email" pattern='[a-zA-Z0-9_\.\+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-\.]+' value={email} onChange={e => setEmail(e.target.value)} className="form-control" id="floatingInputRegisterEmail" placeholder=" " required autoComplete='off'/>
+                <input type="email" pattern='[a-zA-Z0-9_\.\+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-\.]+' value={email} onChange={e => setEmail(e.target.value)} className={`form-control ${isDark?'text-bg-dark':''}`} id="floatingInputRegisterEmail" placeholder=" " required autoComplete='off'/>
                 <label htmlFor="floatingInputRegisterEmail">Email</label>
             </div>
-            <div className="form-floating">
-                <input type="password" value={password} onChange={e => setPassword(e.target.value)} className="form-control" id="floatingRegisterPassword" placeholder=" " minLength={6} required autoComplete='off'/>
+            <div className='form-floating'>
+                <input type="password" value={password} onChange={e => setPassword(e.target.value)} className={`form-control ${isDark?'text-bg-dark':''}`} id="floatingRegisterPassword" placeholder=" " minLength={6} required autoComplete='off'/>
                 <label htmlFor="floatingRegisterPassword">Password</label>
                 <div id="emailHelp" className="form-text">No less than 6 characters</div>
             </div>

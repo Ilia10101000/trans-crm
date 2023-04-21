@@ -17,20 +17,15 @@ export default function RecaptchaContainer({close, getUserFromStore}) {
     const [verificationCode, setVerificationCode] = React.useState('');
     const [showLoader, setShowLoader] = React.useState(false)
 
-    const {error} = useSelector(state => state.error);
+    const [error, setError] = React.useState(null);
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
     React.useEffect(() => {
         if(error){
             setTimeout(() => {
-                dispatch(setError(null))
+                setError(null)
             },2500)
-        }
-        return () => {
-            if(error){
-                dispatch(setError(null))
-            }
         }
     }
     ,[error]);
@@ -100,7 +95,7 @@ export default function RecaptchaContainer({close, getUserFromStore}) {
                 localStorage.setItem('register-user', JSON.stringify(user))
                 navigate('/')
             } catch (error) {
-                dispatch(setError(error.message));
+                setError(error.message);
             } finally {
                 setShowLoader(false)
             }

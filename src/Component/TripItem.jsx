@@ -1,19 +1,22 @@
 import React from 'react'
 import { Button } from 'react-bootstrap'
 
-export default function TripItem({trip, bookTrip}) {
+export default function TripItem({trip, bookTrip = null}) {
   return (
     <tr>
-        <td><span className='trip-item'>{trip.route.split(' - ')[0]}</span></td>
-        <td><span className='trip-item'>{new Date(trip.parametres.date).toLocaleString().slice(0,-3)}</span></td>
-        <td><span className='trip-item'>{trip.parametres.seatsCount}</span></td>
-        <td><span className='trip-item'>{trip.parametres.price}$</span></td>
-        <td><span className='trip-item'>{trip.parametres.driverName}</span></td>
-        <td><span className='trip-item'>{trip.parametres.phone}</span></td>
-        <td><span className='trip-item'>{trip.parametres.car}</span></td>
-        <td><span className='trip-item'>{trip.parametres.numberOfCar}</span></td>
-        <td className='trip-item-option'><span className='trip-item'>{trip.parametres.options || '-'}</span></td>
-        <td className='h-100 d-flex justify-content-center align-items-center'><span><Button onClick={() => bookTrip(trip)}>+</Button></span></td>
+        <td>{trip.route.split(' - ')[0]}</td>
+        <td>{new Date(trip.parametres.date).toLocaleString().slice(0,-3)}</td>
+        <td>{trip.parametres.seatsCount}</td>
+        <td>{trip.parametres.price}$</td>
+        <td>{trip.parametres.driverName}</td>
+        <td>{trip.parametres.phone}</td>
+        <td>{trip.parametres.car}</td>
+        <td>{trip.parametres.numberOfCar}</td>
+        <td className='trip-item-option'>{trip.parametres.options || '-'}</td>
+        {bookTrip?
+        <td><span className='d-flex justify-content-center'><Button onClick={() => bookTrip(trip)}>+</Button></span></td>
+        :null
+        }
      </tr>
   )
 }

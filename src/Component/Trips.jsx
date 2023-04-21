@@ -4,7 +4,7 @@ import CreateTripForm from "./CreateTripForm";
 // import CreateTripForm__Deprecated__ from './CreateTripForm__Deprecated__';
 import { useDispatch, useSelector } from "react-redux";
 import { setError } from '../store/errorReducer';
-import { isShowCreateForm, cancelCreateTrip} from '../store/tripReducer';
+// import { isShowCreateForm, cancelCreateTrip} from '../store/tripReducer';
 import { setDoc, getDocs, doc, query, collection } from 'firebase/firestore';
 import { db } from '../firebase/firebase';
 import TripItem from './TripItem';
@@ -15,11 +15,10 @@ export default function Trips(){
     const [showSuccessAlert, setShowSuccessAlert] = React.useState(false);
     const [tripsList, setTripsList] = React.useState([]);
 
-    const {isShowForm} = useSelector(state => state.trip);
     const {error} = useSelector(state => state.error);
     const {position} = useSelector(state => state.user);
+    const {isDark} = useSelector(state => state.theme)
     const dispatch = useDispatch();
-    console.log(tripsList)
 
 
     React.useEffect(() => {
@@ -32,13 +31,9 @@ export default function Trips(){
     React.useEffect(() => {
         getTripsListFromFireStore()
     },[])
+
     async function hundlerButtonClick (){
-        if(isShowForm){
-            dispatch(cancelCreateTrip())
-        }
-        if(!isShowForm){
-            dispatch(isShowCreateForm(true))
-        }
+
     }
 
     async function storeDataToFireStore (tripParametres) {
@@ -48,18 +43,20 @@ export default function Trips(){
             ...tripParametres
           });
           setShowSuccessAlert(true);
-          dispatch(isShowCreateForm(false));
+        //   dispatch(isShowCreateForm(false));
           await getTripsListFromFireStore()
         } catch (error) {
           dispatch(setError(error.message));
         }
-    }
+    };
+
+
 
     async function bookTrip(trip){
         try {
             await setDoc(doc(db, "trips", trip.route), {...trip.parametres, seatsCount: trip.parametres.seatsCount - 1});
             getTripsListFromFireStore()
-            // setShowSuccessAlert(true)
+            setShowSuccessAlert(true)
           } catch (error) {
             console.log(error.message)
           }
@@ -86,7 +83,7 @@ export default function Trips(){
                     {position === 'Admin' || position === 'Driver'?
                     <Row>
                         <Col className="d-flex">
-                             <Button className="ms-auto" variant={isShowForm?'danger':'success'} onClick={hundlerButtonClick}>{isShowForm?'Cancel':'Create a trip'}</Button>
+                             
                         </Col>
                     </Row>
                     :null
@@ -95,7 +92,6 @@ export default function Trips(){
                     <Row className="mt-5">
                         <Col>
                             <CreateTripForm storeTripToFireStore={storeDataToFireStore}/>
-                            {/* <CreateTripForm__Deprecated__/> */}
                         </Col>
                     </Row>
                     :
@@ -120,7 +116,7 @@ export default function Trips(){
                 </Col>
                 <Col md={12} className='mt-3'>
                 {tripsList.length?
-                    <Table striped bordered hover responsive>
+                    <Table striped bordered hover responsive variant={isDark?'dark':''}>
                     <thead>
                       <tr>
                         <th>Route</th>

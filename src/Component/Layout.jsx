@@ -29,12 +29,10 @@ export default function Layout(){
     },[user.email])
 
     return (
-        <Container className={isDark?'text-bg-dark':'text-bg-light'}>
-                <div>
+        <Container fluid='md' className={isDark?'text-bg-dark':'text-bg-light'}>
                     <Sidebar/>
-                </div>
                 <Row>
-                    <Col className="d-flex flex-column min-vh-100">
+                    <Col className="d-flex flex-column min-vh-100 p-md-0">
                         <Header/>
                         <main className="flex-shrink-1 flex-grow-1">
                             <Outlet/>

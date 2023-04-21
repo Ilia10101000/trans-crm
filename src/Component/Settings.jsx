@@ -1,12 +1,11 @@
 import React from 'react';
-import { setDoc, getDocs, doc, query, collection } from 'firebase/firestore';
+import { setDoc, getDocs, doc, query, collection, updateDoc } from 'firebase/firestore';
 import { db } from '../firebase/firebase';
 import UserItem from './UserItem';
 import { Button, Col, Alert,  Table} from "react-bootstrap";
 import { useDispatch, useSelector } from 'react-redux';
 import { cleanChangeList } from '../store/changeUserPositionListReducer';
 import { setError } from '../store/errorReducer';
-import RecaptchaContainer from './RecaptchaContainer';
 
 export default function Settings() {
     const [usersList, setUsersList] = React.useState([]);
@@ -15,6 +14,7 @@ export default function Settings() {
     const {error} = useSelector(state => state.error);
     const {position} = useSelector(state => state.user);
     const {changePositionList} = useSelector(state => state.changeUserPositionList);
+    const {isDark} = useSelector(state => state.theme);
     const dispatch = useDispatch();
 
     React.useEffect(() => {
@@ -44,7 +44,7 @@ export default function Settings() {
 
   async function restoreUsersData(){
     try {
-      const promise = await Promise.all(changePositionList.map(user => setDoc(doc(db, "registered users", user.email), user)));
+      const promise = await Promise.all(changePositionList.map(user => updateDoc(doc(db, "registered users", user.email), {position: user.position})));
       dispatch(cleanChangeList());
       getUsersListFromFireStore()
       setShowSuccessAlert(true)
@@ -53,9 +53,9 @@ export default function Settings() {
     }
   }
   return (
-      <Col md={12} className='mt-3'>
+      <Col md={12} className='mt-3 px-3'>
         {usersList.length?
-            <Table striped bordered hover responsive>
+            <Table striped bordered hover responsive variant={isDark?'dark':''}>
             <thead>
               <tr>
                 <th>Email</th>

@@ -25,12 +25,20 @@ export default function Sidebar() {
         dispatch(removeUser());
     }
 
+    React.useEffect(() => {
+        if(isDark && !document.body.classList.contains('bg-black')){
+            document.body.classList.add('bg-black');
+        } else if (!isDark && document.body.classList.contains('bg-black')){
+            document.body.classList.remove('bg-black');
+        }
+    },[isDark])
+
   return (
-         <Offcanvas show={isShow} onHide={handleClose} style={{width: '250px'}}>
+         <Offcanvas className={isDark?'text-bg-dark':'text-bg-light'} show={isShow} onHide={handleClose} style={{width: '250px'}}>
          <Offcanvas.Header className='mb-3' closeButton>
            <Offcanvas.Title>
             <Stack direction="horizontal" gap={3}>
-                <span className="logo-img"><img src={logo} alt='logo'/></span>
+                <span className="logo-img"><img style={isDark?{filter: 'invert(100%)'}:null} src={logo} alt='logo'/></span>
                 <span className="logo-description fs-5">Trans CRM</span>
             </Stack>
            </Offcanvas.Title>

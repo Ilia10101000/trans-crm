@@ -14,7 +14,6 @@ export default function CustomeForm({name, action, length, pattern, sendDataToFi
     React.useEffect(() => {
       if(sendDataToFirestore){
           dispatch(action(value))
-          // console.log('Send: ', value)
       }
   },[sendDataToFirestore])
   return (

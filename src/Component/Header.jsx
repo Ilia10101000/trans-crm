@@ -12,7 +12,7 @@ export default function Header() {
     dispatch(showSidebar())
   }
   return (
-        <header className='text-bg-secondary p-2'>
+        <header className='text-bg-secondary p-2'> 
           <Row>
             <Col className='d-flex align-items-center'>
               <div className='menu-wrapper' onClick={hundlerMenuOnclick}>
@@ -31,7 +31,6 @@ export default function Header() {
               </div>
             </Col>
           </Row>
-          {/* <div className="background bg-secondary"></div> */}
         </header>
   )
 }
