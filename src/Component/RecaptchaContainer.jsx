@@ -1,11 +1,11 @@
 import React from 'react';
 import { Alert, InputGroup , Form, Button, FloatingLabel} from 'react-bootstrap';
-import { useDispatch, useSelector } from 'react-redux';
-import { setError } from '../store/errorReducer';
+import { useDispatch } from 'react-redux';
 import {RecaptchaVerifier, signInWithPhoneNumber} from 'firebase/auth';
-import { auth } from '../firebase/firebase';
+import { auth, db } from '../firebase/firebase';
 import { setUser } from '../store/userReducer';
 import { useNavigate } from 'react-router-dom';
+import { setDoc, doc } from 'firebase/firestore';
 
 
 
@@ -25,7 +25,7 @@ export default function RecaptchaContainer({close, getUserFromStore}) {
         if(error){
             setTimeout(() => {
                 setError(null)
-            },2500)
+            },7500)
         }
     }
     ,[error]);
@@ -33,11 +33,11 @@ export default function RecaptchaContainer({close, getUserFromStore}) {
     function checkValidatePhoneNumber(number){
         const numberArray = number.split('');
         if(number.length < 9){
-            dispatch(setError('Check your phone number!'));
+            setError('Check your phone number!');
             return false
         } 
         else if(!numberArray.every(character => !isNaN(character))){
-            dispatch(setError('Check your phone number. It must contains only digits!'));
+            setError('Check your phone number. It must contains only digits!');
             return false
         }
         return true
@@ -64,7 +64,7 @@ export default function RecaptchaContainer({close, getUserFromStore}) {
                 setExpandForm(true)
             }).catch((error) => {
                 setExpandForm(false)
-                dispatch(setError(error.message));
+                setError(error.message);
             }).finally(() => {
                 setShowLoader(false)
             });
@@ -80,19 +80,21 @@ export default function RecaptchaContainer({close, getUserFromStore}) {
             try {
                 let confirmationResult = window.confirmationResult;
                 let result = await confirmationResult.confirm(code);
-                console.log(result)
                 try {
                     user = await getUserFromStore('phone',result.user.phoneNumber)
                 } catch {
                     user = {
-                        email: result.user.email || undefined,
-                        name: result.user.displayName || undefined,
+                        id: result.user.email || result.user.phoneNumber,
+                        email: result.user.email || '',
+                        name: result.user.displayName || '',
                         phone: result.user.phoneNumber,
-                        position:'User'
+                        position:'User',
+                        signInMethod:'phone'
                     }
+                    await setDoc(doc(db,'users',user.id),user)
                 }
                 dispatch(setUser(user))
-                localStorage.setItem('register-user', JSON.stringify(user))
+                localStorage.setItem('user', JSON.stringify(user))
                 navigate('/')
             } catch (error) {
                 setError(error.message);

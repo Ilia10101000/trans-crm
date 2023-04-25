@@ -5,9 +5,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, NavLink } from 'react-router-dom';
 import { changeThemeMode } from '../store/themeReducer';
 import { setUser } from '../store/userReducer';
-import { setError } from '../store/errorReducer';
 import {createUserWithEmailAndPassword} from 'firebase/auth';
-import { setDoc, doc, collection } from 'firebase/firestore';
+import { setDoc, doc, collection, getDocs } from 'firebase/firestore';
 import { db,auth} from '../firebase/firebase';
 
 
@@ -17,49 +16,75 @@ export default function Register() {
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
   const [position, setPosition] = React.useState('User');
+  const [error, setError] = React.useState(null);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const {loading} = useSelector(state => state.loading);
-  const {error} = useSelector(state => state.error);
   const {isDark} = useSelector(state => state.theme)
 
+  React.useEffect(() => {
+    if(error){
+      setTimeout(() => {
+        setError(null)
+      },2500)
+    }
+  },[error])
 
   const setUsersDataInFSDB = async () => {
-        try {
-          const userRef = collection(db, 'registered users');
-          await setDoc(doc(userRef,email), {
-            name,email,phone: '+380' + phone, position: email === 'ilya.krasnoper@gmail.com'?'Admin':position
+          const userRef = collection(db, 'users');
+          await setDoc(doc(userRef, email), {
+            id: email,
+            name,
+            email,
+            phone: '+380' + phone, 
+            position: email === 'ilya.krasnoper@gmail.com'?'Admin':position,
+            signInMethod:'email'
           })
-        } catch (error) {
-          dispatch(setError(error.message));
-          return
-        }
   };
 
+  async function userWithExistPhoneNumber(){
+      let usersList = await getDocs(collection(db,'users'));
+      if(usersList.empty){
+        return 
+      }
+      let users = [];
+      usersList.forEach(user => users.push({id:user.id,parametres:user.data()}));
+
+      if(users.some(user => user.parametres.phone == '+380' + phone)){
+        throw new Error('This phone number has already used!')
+
+      }
+  }
 
   const registerUser = async () => {
-    try {
       const credentials = await createUserWithEmailAndPassword(auth, email, password);
-
-      const user = {
+      console.log(credentials)
+      const userData = {
+        id: email,
         email,
         name,
         phone: '+380' + phone,
         position: email === 'ilya.krasnoper@gmail.com'?'Admin':position,
+        signInMethod:'email'
       }
-      dispatch(setUser(user));
-      localStorage.setItem('register-user', JSON.stringify(user))
+      dispatch(setUser(userData));
+      localStorage.setItem('user', JSON.stringify(userData))
       navigate('/')
-    } catch (error) {
-      dispatch(setError(error.message));
-    }
+
   };
-  async function signUp(e){
+    async function signUp(e){
     e.preventDefault();
-    setUsersDataInFSDB()
-    registerUser()
+    try {
+      await userWithExistPhoneNumber();
+      await registerUser();
+      await setUsersDataInFSDB()
+      
+    } catch (error) {
+      setError(error.message);
+    }
+        
+
 
   }
 
@@ -103,7 +128,8 @@ export default function Register() {
           <span>Already have account? <NavLink to='/login' className='text-decoration-none'>Log in</NavLink></span>
         </Stack>
         {error?
-            <Alert className='alert-message' variant="danger" onClose={() => dispatch(setError(null))} dismissible>
+
+            <Alert className='alert-message' variant="danger">
             <Alert.Heading>Alert!</Alert.Heading>
             <p>{error}</p>
             </Alert>

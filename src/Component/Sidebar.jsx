@@ -3,7 +3,7 @@ import logo from '../img/logo.png';
 import {NavLink} from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { hideSidebar } from '../store/sidebarReducer';
-import {FiHome} from 'react-icons/fi';
+import {FiHome, FiList} from 'react-icons/fi';
 import {BiTrip} from 'react-icons/bi';
 import {ImSun} from 'react-icons/im';
 import {BsMoonFill} from 'react-icons/bs';
@@ -17,7 +17,8 @@ export default function Sidebar() {
 
     const {isShow} = useSelector(state => state.sidebar);
     const {isDark} = useSelector(state => state.theme);
-    const {position} = useSelector(state => state.user)
+    const {position} = useSelector(state => state.user);
+
     const dispatch = useDispatch();
     const handleClose = () => dispatch(hideSidebar());
     function signOut(){
@@ -56,9 +57,36 @@ export default function Sidebar() {
                 <Nav.Item>
                         <NavLink to='trips' className='text-decoration-none fs-5' onClick={handleClose}>
                              <Stack direction="horizontal" gap={3}>
-                                <span><BiTrip/></span>
-                                <span>Trips</span>
+                                <span><FiList/></span>
+                                <span>All trips</span>
                              </Stack>
+                        </NavLink>
+                </Nav.Item>
+                {(position == 'Driver' || position == 'Admin') &&
+                <Nav.Item>
+                        <NavLink to='createdtrips' className='text-decoration-none fs-5' onClick={handleClose}>
+                             <Stack direction="horizontal" gap={3}>
+                                <span><BiTrip/></span>
+                                <span>Created trips</span>
+                             </Stack>
+                        </NavLink>
+                </Nav.Item>
+
+                }
+                <Nav.Item>
+                        <NavLink to='reservedtrips' className='text-decoration-none fs-5' onClick={handleClose}>
+                             <Stack direction="horizontal" gap={3}>
+                                <span><BiTrip/></span>
+                                <span>Reserved trips</span>
+                             </Stack>
+                        </NavLink>
+                </Nav.Item>
+                <Nav.Item>
+                        <NavLink to='personalsettings' className='text-decoration-none fs-5' onClick={handleClose}>
+                            <Stack direction="horizontal" gap={3}>
+                                <span><AiFillSetting/></span>
+                                <span>Personal settings</span>
+                            </Stack>
                         </NavLink>
                 </Nav.Item>
            {position === 'Admin'?     

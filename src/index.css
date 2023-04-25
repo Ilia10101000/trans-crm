@@ -30,6 +30,8 @@
     position: absolute;
     width: 100%;
     z-index: 2;
+    max-height: 250px;
+    overflow-y: scroll;
 }
 .input-prompt{
     position: absolute;
@@ -46,11 +48,13 @@
 .trip-text-area{
     resize: none;
 }
-.signinPhoneNumberForm{
+
+.signinPhoneNumberForm, .alert-confirm-container{
     position: absolute;
     top:0;
     bottom: 0;
-    width: 100%;
+    left:0;
+    right:0;
     display: flex;
     justify-content: center;
     align-items: center;

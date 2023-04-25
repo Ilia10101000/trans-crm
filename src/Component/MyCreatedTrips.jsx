@@ -1,57 +1,162 @@
-import React from 'react'
-import { Button } from 'react-bootstrap';
+import React from 'react';
+import { Button, Row, Col, Table, Alert, Stack } from 'react-bootstrap';
+import CreateTripForm from './CreateTripForm';
+import TripItem from './TripItem';
+import { useSelector } from 'react-redux';
+import { doc, deleteDoc, collection, getDocs} from "firebase/firestore";
+import { db } from "../firebase/firebase";
+
 
 export default function MyCreatedTrips() {
 
     const [tripsList, setTripsList] = React.useState([]);
-    const [showCreateForm, setShowCreateForm] = React.useState(false)
+    const [showCreateForm, setShowCreateForm] = React.useState(false);
+    const [showSuccessAlert, setShowSuccessAlert] = React.useState(false);
+    const [tripForDelete, setTripForDelete] = React.useState(null);
 
 
-    async function makeBookATrip(){
-        let ref = doc(db,'/registered users/katya.gar@gmail.com/personal trips','Created trips');
+    const {isDark} = useSelector(state => state.theme);
+    const {email, phone:phoneNumber, id:userId} = useSelector(state => state.user);
+
+    React.useEffect(() => {
+        if(showSuccessAlert){
+            setTimeout(() => {
+                setShowSuccessAlert(false)
+            },2000)
+        }
+    },[showSuccessAlert]);
+
+    React.useEffect(()=>{
+        getTripsList()
+    },[])
+
+    async function getTripsList(){
         try {
-            await updateDoc(ref, {
-                ['Zhutomir-Lviv']: deleteField()
-            });
+            const collectionRef = collection(db, `/users/${userId}/personal trips/Created trips/Created trips list`);
+            const docSnap = await getDocs(collectionRef);
+            if(!docSnap.empty){
+                let dataArray = [];
+                docSnap.forEach(doc => {
+                    dataArray.push({
+                        id: doc.id,
+                        parametres: doc.data()
+                    })
+                });
+                setTripsList(dataArray)
+            } else if (docSnap.empty && tripsList.length){
+                setTripsList([])
+            }
+            
             
         } catch (error) {
-            console.log(error)
+            console.log(error.message)
         }
+
+    }
+
+    async function getPassengersOfTrip(trip){
+        try {
+            const passengersDocsSnap = await getDocs(collection(db,`trips/${trip.id}/passengers`));
+            if(passengersDocsSnap.empty){
+                return []
+            }
+            let passengersList = [];
+            passengersDocsSnap.forEach(doc => passengersList.push(doc.id))
+            return passengersList
+        } catch (error) {
+            throw new Error(error.message)
+        }
+    }
+    
+    async function deleteTrip(trip){
+        try {
+            let passengersList = await getPassengersOfTrip(trip);
+            console.log(passengersList)
+            if(passengersList.length) {
+
+                for(let passenger of passengersList){
+                    await deleteDoc(doc(db,`users/${passenger}/personal trips/Reserved trips/Reserved trips list`,trip.id))
+                    await deleteDoc(doc(db,`trips/${trip.id}/passengers/`,passenger))            
+                }
+            }
+            await deleteDoc(doc(db, `/users/${userId}/personal trips/Created trips/Created trips list`, trip.id));
+            await deleteDoc(doc(db, "trips", trip.id));
+            await getTripsList();
+            setTripForDelete(null)
+        } catch (error) {
+            console.log(error.message)
+        }
+
     }
     
   
     return (
+        
     <Row>
-        <Col className='d-flex justify-content-center'>
-            <Row>
-                <Col>
-                     <Button className="ms-auto" variant={showCreateForm?'danger':'success'} onClick={() => setShowCreateForm(state => !state)}>{isShowForm?'Cancel':'Create a trip'}</Button>
+        <Col>
+            <Row className='p-3'>
+                <Col className='d-flex justify-content-end'>
+                     <Button className="ms-auto" variant={showCreateForm?'danger':'success'} onClick={() => setShowCreateForm(state => !state)}>{showCreateForm?'Cancel':'Create a trip'}</Button>
                 </Col>
             </Row>
-            {
-            tripsList.length?
-            <Table striped bordered hover responsive variant={isDark?'dark':''}>
-                <thead>
-                    <tr>
-                    <th>Route</th>
-                    <th>Date</th>
-                    <th>Seats</th>
-                    <th>Price</th>
-                    <th>Driver</th>
-                    <th>Phone</th>
-                    <th>Car</th>
-                    <th>Number of Car</th>
-                    <th>Conditions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {tripsList.map(trip => <TripItem key={trip.route} trip={{...trip}}/>)}
-                </tbody>
-            </Table>
-            :
-            <div>You didn't reserved any trip!</div>
-            }
+            <Row className='p-3'>
+                <Col>
+                    {showCreateForm?
+                            <CreateTripForm closeForm={() => setShowCreateForm(false)} setShowSuccessAlert={setShowSuccessAlert} getTripsList={getTripsList}/>
+                            :
+                            <>
+                            {
+                            tripsList.length?
+                            <Table striped bordered hover responsive variant={isDark?'dark':''}>
+                                <thead>
+                                    <tr>
+                                    <th>Route</th>
+                                    <th>Date</th>
+                                    <th>Seats left</th>
+                                    <th>Price</th>
+                                    <th>Driver</th>
+                                    <th>Phone</th>
+                                    <th>Car</th>
+                                    <th>Number of Car</th>
+                                    <th>Conditions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {tripsList.map(trip => <TripItem key={trip.id} isPossiableProcessTrip={true} processTheTrip={setTripForDelete} descriptionOfProcess={'Delete'} trip={trip}/>)}
+                                </tbody>
+                            </Table>
+                            :
+                            <div className='text-center'>You didn't created any trip!</div>
+                            }
+                            </>
+                    }
+                </Col>
+            </Row>
+
+            <Row>
+                <Col className='d-flex justify-content-center'>
+                </Col>
+            </Row>
         </Col>
+        {showSuccessAlert?
+        <Alert className='alert-message' variant="success">
+            <Alert.Heading>Congratulations!</Alert.Heading>
+            <p>Trip was successfully created!</p>
+        </Alert>
+        :null
+        }
+        {tripForDelete?
+            <div className="alert-confirm-container">
+                <Alert variant="light">
+                <Alert.Heading className='text-center'>Remove trip?</Alert.Heading>
+                    <Stack direction="horizontal" gap={2} className='d-flex justify-content-center mt-3'>
+                        <Button onClick={() => deleteTrip(tripForDelete)}>Confirm</Button>
+                        <Button variant='danger' onClick={() => setTripForDelete(null)}>Cancel</Button>
+                    </Stack>
+                </Alert>
+            </div>
+        :null
+        }
     </Row>
   )
 }

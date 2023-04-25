@@ -10,10 +10,10 @@ const changeUserPositionListSlice = createSlice({
             state.changePositionList.push(action.payload)
         },
         removeFromChangePositionList: (state, action) => {
-            state.changePositionList = state.changePositionList.filter(user => user.email !== action.payload)
+            state.changePositionList = state.changePositionList.filter(user => user.id !== action.payload)
         },
         rechangeSelectedPosition: (state,action) => {
-            state.changePositionList = state.changePositionList.map(item => item.email === action.payload.email?{...item, position: action.payload.position}:item)
+            state.changePositionList = state.changePositionList.map(item => item.id === action.payload.id?{...item, position: action.payload.position}:item)
         },
         cleanChangeList: state => {
             state.changePositionList = [];

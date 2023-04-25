@@ -1,17 +1,16 @@
 import React from 'react';
-import { setDoc, getDocs, doc, query, collection, updateDoc } from 'firebase/firestore';
+import { getDocs, doc, query, collection, updateDoc } from 'firebase/firestore';
 import { db } from '../firebase/firebase';
 import UserItem from './UserItem';
 import { Button, Col, Alert,  Table} from "react-bootstrap";
 import { useDispatch, useSelector } from 'react-redux';
 import { cleanChangeList } from '../store/changeUserPositionListReducer';
-import { setError } from '../store/errorReducer';
 
 export default function Settings() {
     const [usersList, setUsersList] = React.useState([]);
     const [showSuccessAlert, setShowSuccessAlert] = React.useState(false);
+    const [error, setError] = React.useState(false);
 
-    const {error} = useSelector(state => state.error);
     const {position} = useSelector(state => state.user);
     const {changePositionList} = useSelector(state => state.changeUserPositionList);
     const {isDark} = useSelector(state => state.theme);
@@ -27,10 +26,16 @@ export default function Settings() {
           },3000)
       }
   },[showSuccessAlert]);
+    React.useEffect(() => {
+      if(error){
+          setTimeout(() => {
+            setError(false)
+          },3000)
+      }
+  },[error]);
 
     async function getUsersListFromFireStore(){
-      let q = query(collection(db,'registered users'));
-      let querySnapshot = await getDocs(q);
+      let querySnapshot = await getDocs(collection(db,'users'));
       let data = [];
       querySnapshot.forEach(doc => {
           let trip = {
@@ -44,12 +49,12 @@ export default function Settings() {
 
   async function restoreUsersData(){
     try {
-      const promise = await Promise.all(changePositionList.map(user => updateDoc(doc(db, "registered users", user.email), {position: user.position})));
+      const promise = await Promise.all(changePositionList.map(user => updateDoc(doc(db, "users", user.id), {position: user.position})));
       dispatch(cleanChangeList());
       getUsersListFromFireStore()
       setShowSuccessAlert(true)
     } catch (error) {
-      console.log(error.message)
+      setError(error.message)
     }
   }
   return (
@@ -58,8 +63,8 @@ export default function Settings() {
             <Table striped bordered hover responsive variant={isDark?'dark':''}>
             <thead>
               <tr>
-                <th>Email</th>
                 <th>Name</th>
+                <th>Email</th>
                 <th>Phone</th>
                 <th>Position</th>
               </tr>

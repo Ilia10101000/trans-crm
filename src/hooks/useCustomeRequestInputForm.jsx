@@ -9,8 +9,6 @@ export default function useCustomeRequestInputForm(requestFunction) {
     const [responseResult, setResponseResult] = React.useState([]);
     const [stillMakeRequest, setStillMakeRequest] = React.useState(true);
 
-    const dispatch = useDispatch();
-
 
     React.useEffect(() => {
         if(request.length && stillMakeRequest){

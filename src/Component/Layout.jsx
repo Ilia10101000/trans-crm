@@ -15,18 +15,18 @@ export default function Layout(){
     const navigate = useNavigate();
 
     React.useEffect(() => {
-        if(!user.email && localStorage.getItem('register-user')){
+        if(!user.id && localStorage.getItem('register-user')){
           dispatch(setUser(JSON.parse(localStorage.getItem('register-user'))))
         }
       },[]);
 
     React.useEffect(() => {
-        if(!user.email){
+        if(!user.id){
             navigate('login')
         } else {
             navigate('/')
         }
-    },[user.email])
+    },[user.id])
 
     return (
         <Container fluid='md' className={isDark?'text-bg-dark':'text-bg-light'}>

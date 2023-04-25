@@ -1,10 +1,9 @@
 import React from 'react';
 import {BsFillSunFill, BsFillMoonFill, BsPhone} from 'react-icons/bs'
-import {signInWithEmailAndPassword,signInWithPopup, linkWithPopup, FacebookAuthProvider} from 'firebase/auth';
+import {signInWithEmailAndPassword,signInWithPopup} from 'firebase/auth';
 import { setUser } from '../store/userReducer';
 import { googleProvider, facebookProvider, db, auth} from '../firebase/firebase';
-import { collection, getDocs, where, query } from 'firebase/firestore';
-import { setError } from '../store/errorReducer';
+import { collection, getDocs, where, query, setDoc, doc } from 'firebase/firestore';
 import { changeThemeMode } from '../store/themeReducer';
 import { useDispatch, useSelector } from 'react-redux';
 import { NavLink, useNavigate } from 'react-router-dom';
@@ -18,8 +17,8 @@ export default function Login() {
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
   const [useSigninWithPhoneNumber, setUseSigninWithPhoneNumber] = React.useState(false);
-  const [loading, setLoading] = useSelector(false);
-  const [error, setError] = useSelector(false);
+  const [loading, setLoading] = React.useState(false);
+  const [error, setError] = React.useState(false);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -41,7 +40,7 @@ export default function Login() {
 
   async function requestUserData(key, value){
     try {
-      let requestUserData = query(collection(db,'registered users'), where(key,'==',value))
+      let requestUserData = query(collection(db,'users'), where(key,'==',value));
       const querySnapshot = await getDocs(requestUserData);
       return querySnapshot.docs[0].data()
     } catch (error) {
@@ -51,21 +50,48 @@ export default function Login() {
 
 
   async function signInByProvider(provider){
+
+    // linkWithPopup(auth.currentUser, provider).then((result) => {
+    //   // Accounts successfully linked.
+    //   const credential = GoogleAuthProvider.credentialFromResult(result);
+    //   const user = result.user;
+    //   console.log(user)
+    //   // ...
+    // }).catch((error) => {
+    //   // Handle Errors here.
+    //   // ...
+    // });
+
+
+//     const credential = GoogleAuthProvider.credentialFromResult(result);
+// linkWithCredential(auth.currentUser, credential)
+// .then((usercred) => {
+//   const user = usercred.user;
+//   console.log("Account linking success", user);
+// }).catch((error) => {
+//   console.log("Account linking error", error);
+// });
+
+
     try {
+
       const result = await signInWithPopup(auth, provider);
       let user;
       try {
         user = await requestUserData('email', result.user.email);
       } catch {
         user = {
+        id: result.user.email,
         email: result.user.email,
-        name: result.user.displayName || 'unknow',
-        phone: result.user.phoneNumber || '-',
-        position:result.user.email === 'ilya.krasnoper@gmail.com'?'Admin':'User'
+        name: result.user.displayName || '',
+        phone: result.user.phoneNumber || '',
+        position:result.user.email === 'ilya.krasnoper@gmail.com'?'Admin':'User',
+        signInMethod:'email'
       };
+        await setDoc(doc(db,'users',user.id),user)
       }
       dispatch(setUser(user))
-      localStorage.setItem('register-user', JSON.stringify(user))
+      localStorage.setItem('user', JSON.stringify(user))
       navigate('/')
     } catch (error) {
       setError(error.message);
@@ -107,7 +133,7 @@ export default function Login() {
               </div>
             </Stack>
             {error && !useSigninWithPhoneNumber?
-            <Alert className='alert-message' variant="danger" onClose={() => dispatch(setError(null))} dismissible>
+            <Alert className='alert-message' variant="danger" onClose={() => setError(null)} dismissible>
             <Alert.Heading>Alert!</Alert.Heading>
             <p>{error}</p>
             </Alert>

@@ -7,6 +7,9 @@ import Layout from "./Component/Layout";
 import Login from "./Component/Login";
 import Register from "./Component/Register";
 import Settings from "./Component/Settings";
+import MyCreatedTrips from "./Component/MyCreatedTrips";
+import MyReservedTrips from "./Component/MyReservedTrips";
+import PersonalSetting from "./Component/PersonalSetting";
 import { useDispatch, useSelector } from "react-redux";
 import { setUser } from "./store/userReducer";
 
@@ -17,8 +20,8 @@ function App() {
   const dispatch = useDispatch();
 
   React.useEffect(() => {
-    if(!user.email && localStorage.getItem('register-user')){
-      dispatch(setUser(JSON.parse(localStorage.getItem('register-user'))))
+    if(!user.email && localStorage.getItem('user')){
+      dispatch(setUser(JSON.parse(localStorage.getItem('user'))))
     }
   },[])
 
@@ -27,6 +30,9 @@ function App() {
       <Route path="/" element={<Layout/>}>
         <Route index element={<Home/>}></Route>
         <Route path="trips" element={<Trips/>}></Route>
+        <Route path="createdtrips" element={<MyCreatedTrips/>}></Route>
+        <Route path="reservedtrips" element={<MyReservedTrips/>}></Route>
+        <Route path="personalsettings" element={<PersonalSetting/>}></Route>
         <Route path="settings" element={<Settings/>}></Route>
         <Route path="*" element={<PageHasNotFound/>}></Route>
       </Route>
