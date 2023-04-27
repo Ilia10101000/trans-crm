@@ -1,14 +1,14 @@
 {
   "files": {
     "main.css": "/trans-crm/static/css/main.e92af19a.css",
-    "main.js": "/trans-crm/static/js/main.77f9ec2d.js",
+    "main.js": "/trans-crm/static/js/main.b4d12991.js",
     "static/media/photo-576.jpg": "/trans-crm/static/media/photo-576.6c891e101e75409cc8eb.jpg",
     "index.html": "/trans-crm/index.html",
     "main.e92af19a.css.map": "/trans-crm/static/css/main.e92af19a.css.map",
-    "main.77f9ec2d.js.map": "/trans-crm/static/js/main.77f9ec2d.js.map"
+    "main.b4d12991.js.map": "/trans-crm/static/js/main.b4d12991.js.map"
   },
   "entrypoints": [
     "static/css/main.e92af19a.css",
-    "static/js/main.77f9ec2d.js"
+    "static/js/main.b4d12991.js"
   ]
 }
