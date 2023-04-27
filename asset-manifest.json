@@ -1,0 +1,14 @@
+{
+  "files": {
+    "main.css": "/Ilia10101000/trans-managment.git/static/css/main.e92af19a.css",
+    "main.js": "/Ilia10101000/trans-managment.git/static/js/main.7f4f0478.js",
+    "static/media/photo-576.jpg": "/Ilia10101000/trans-managment.git/static/media/photo-576.6c891e101e75409cc8eb.jpg",
+    "index.html": "/Ilia10101000/trans-managment.git/index.html",
+    "main.e92af19a.css.map": "/Ilia10101000/trans-managment.git/static/css/main.e92af19a.css.map",
+    "main.7f4f0478.js.map": "/Ilia10101000/trans-managment.git/static/js/main.7f4f0478.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.e92af19a.css",
+    "static/js/main.7f4f0478.js"
+  ]
+}
