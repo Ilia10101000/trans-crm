@@ -12,7 +12,7 @@ import MyReservedTrips from "./Component/MyReservedTrips";
 import PersonalSetting from "./Component/PersonalSetting";
 import { useDispatch, useSelector } from "react-redux";
 import { setUser } from "./store/userReducer";
-
+import { setThemeMode } from "./store/themeReducer";
 
 function App() {
 
@@ -20,9 +20,12 @@ function App() {
   const dispatch = useDispatch();
 
   React.useEffect(() => {
-    if(!user.email && localStorage.getItem('user')){
+    if(!user.id && localStorage.getItem('user')){
       dispatch(setUser(JSON.parse(localStorage.getItem('user'))))
     }
+  },[])
+  React.useEffect(() => {
+      dispatch(setThemeMode(JSON.parse(localStorage.getItem('darkMode'))))
   },[])
 
   return (
@@ -41,5 +44,6 @@ function App() {
     </Routes>
   );
 }
+
 
 export default App;

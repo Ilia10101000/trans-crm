@@ -1,6 +1,6 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
-import { Row, Stack, Col} from 'react-bootstrap';
+import { Row, Col} from 'react-bootstrap';
 import logo from '../img/logo.png';
 
 export default function Footer() {
@@ -10,13 +10,11 @@ export default function Footer() {
   return (
     <footer className='text-bg-secondary p-2'> 
       <Row>
-        <Col className='d-flex align-items-center'>
-          <Stack>
+        <Col className='d-flex align-items-center justify-content-end'>
             <div>
-                <span className='logo-image'><img style={isDark?{filter: 'invert(100%)'}:null} src={logo} alt="logo" /></span>
                 <span>Designed by Ilia Krasnoper</span>
+                <span className='logo-image'><img style={isDark?{filter: 'invert(100%)'}:null} src={logo} alt="logo" /></span>
             </div>
-          </Stack>
         </Col>
       </Row>
     </footer>

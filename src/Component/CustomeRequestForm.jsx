@@ -21,7 +21,6 @@ export default function CustomeRequestForm({name, action, requestFunction, sendD
     React.useEffect(() => {
         if(sendDataToFirestore){
             dispatch(action(request))
-            // console.log('Send: ', request)
         }
     },[sendDataToFirestore])
 

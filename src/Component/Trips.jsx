@@ -3,31 +3,27 @@ import { Button, Col, Row, Alert, Table, Stack, FloatingLabel, Form} from "react
 import { useSelector } from "react-redux";
 import { setDoc, getDocs, doc, query, collection, updateDoc } from 'firebase/firestore';
 import { db } from '../firebase/firebase';
-import TripItem from './TripItem';
+import TripsTable from './TripsTable';
+import useErrorMessage from '../hooks/useErrorMessage';
+import ErrorMessage from './ErrorMessage';
+import useSuccessMessage from '../hooks/useSuccessMessage';
+import SuccessMessage from './SuccessMessage';
 
 
 export default function Trips(){
 
     const [tripsList, setTripsList] = React.useState([]);
-    const [error, setError] = React.useState(false);
+    const [showSuccessAlert, setShowSuccessAlert] = useSuccessMessage();
+    const [error, setError] = useErrorMessage();
     const [reservedTrip, setReservedTrip] = React.useState(null);
     const [reservedTripsListFromFirestore, setReservedTripsListFromFirestore] = React.useState(null);
     const user = useSelector(state => state.user);
     const {isDark} = useSelector(state => state.theme)
-    const {email, phone:phoneNumber,id:userId} = useSelector(state => state.user);
 
     React.useEffect(() => {
         getTripsListFromFireStore();
         getReservedTripsList();
     },[]);
-
-    React.useEffect(() => {
-        if(error){
-            setTimeout(() => {
-                setError(null)
-            },2500)
-        }
-    },[error]);
     
     const inputReserveRef = React.useRef()
 
@@ -48,7 +44,7 @@ export default function Trips(){
 
     async function getReservedTripsList(){
         try {
-            const reservedTripsRef = collection(db, `/users/${userId}/personal trips/Reserved trips/Reserved trips list`);
+            const reservedTripsRef = collection(db, `/users/${user.id}/personal trips/Reserved trips/Reserved trips list`);
             const reservedTripsSnap = await getDocs(reservedTripsRef);
             if(reservedTripsSnap.empty){
                 setReservedTripsListFromFirestore([]);
@@ -65,22 +61,25 @@ export default function Trips(){
     async function makeTripReserve(event){
         event.preventDefault();
         try {
-            if(+inputReserveRef.current.value > +reservedTrip.parametres.seatsCount){
-                setError('Your wish seats count is more than capacity!')
-                return
-            }
-            if(!inputReserveRef.current.value.startsWith('0')){
-                const reservedTripsRef = collection(db, `/users/${userId}/personal trips/Reserved trips/Reserved trips list`);
-                await setDoc(doc(reservedTripsRef,reservedTrip.id),{...reservedTrip.parametres, seatsCount:inputReserveRef.current.value});
-
-                await updateDoc(doc(db,`/users/${reservedTrip.parametres.driverId}/personal trips/Created trips/Created trips list`, reservedTrip.id),{seatsCount: reservedTrip.parametres.seatsCount - inputReserveRef.current.value})
+            if(inputReserveRef.current.value){
+                if(+inputReserveRef.current.value > +reservedTrip.parametres.seatsCount){
+                    setError('Your wish seats count is more than capacity!')
+                    return
+                }
+                if(!inputReserveRef.current.value.startsWith('0')){
+                    const reservedTripsRef = collection(db, `/users/${user.id}/personal trips/Reserved trips/Reserved trips list`);
+                    await setDoc(doc(reservedTripsRef,reservedTrip.id),{...reservedTrip.parametres, seatsCount:inputReserveRef.current.value});
     
-                await setDoc(doc(collection(db,`trips/${reservedTrip.id}/passengers`),userId),{email: user.email || '', phone: user.phone || '', name: user.name || '', seatsCount:inputReserveRef.current.value});
-                await updateDoc(doc(db, 'trips', reservedTrip.id),{seatsCount: reservedTrip.parametres.seatsCount - inputReserveRef.current.value})
-                await getTripsListFromFireStore();
-                await getReservedTripsList();
-                setReservedTrip(null)
-                inputReserveRef.current.value = '';
+                    await updateDoc(doc(db,`/users/${reservedTrip.parametres.driverId}/personal trips/Created trips/Created trips list`, reservedTrip.id),{seatsCount: reservedTrip.parametres.seatsCount - inputReserveRef.current.value})
+        
+                    await setDoc(doc(collection(db,`trips/${reservedTrip.id}/passengers`),user.id),{email: user.email || '', phone: user.phone || '', name: user.name || '', seatsCount:inputReserveRef.current.value});
+                    await updateDoc(doc(db, 'trips', reservedTrip.id),{seatsCount: reservedTrip.parametres.seatsCount - inputReserveRef.current.value})
+                    await getTripsListFromFireStore();
+                    await getReservedTripsList();
+                    setReservedTrip(null)
+                    inputReserveRef.current.value = '';
+                }
+                setShowSuccessAlert(true)
             }
         } catch (error) {
             setError(error.message)
@@ -92,27 +91,18 @@ export default function Trips(){
             <Row className="p-3">
                 <Col className='mt-3'>
                 {tripsList.length?
-                    <Table striped bordered hover responsive variant={isDark?'dark':''}>
-                    <thead>
-                      <tr>
-                        <th>Route</th>
-                        <th>Date</th>
-                        <th>Seats left</th>
-                        <th>Price</th>
-                        <th>Driver</th>
-                        <th>Phone</th>
-                        <th>Car</th>
-                        <th>Number of Car</th>
-                        <th>Conditions</th>
-                        <th>Book a trip</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {tripsList.map(trip => <TripItem key={trip.id} processTheTrip={setReservedTrip} userId={userId} reservedTrips={reservedTripsListFromFirestore} descriptionOfProcess={'Reserve'} trip={{...trip}}/>)}
-                    </tbody>
-                  </Table>
+
+                    <TripsTable 
+                    tripsList={tripsList} 
+                    processTheTrip={setReservedTrip} 
+                    userId={user.id}
+                    seatTdDescription={'Seats left'}
+                    reservedTrips={reservedTripsListFromFirestore}
+                    descriptionOfProcess={'Reserve'}
+                    isDark={isDark}
+                    />
                   :
-                  <div className='text-center'>No one trip has created!</div>
+                     <div className='text-center'>No one trip has created!</div>
                 }
                 </Col>
                 {reservedTrip?
@@ -134,14 +124,8 @@ export default function Trips(){
                     </div>
                 :null
                 }
-                {error?
-                <Alert className='alert-message' variant="warning">
-                <Alert.Heading>Something is wrong!!</Alert.Heading>
-                <p>{error}</p>
-                </Alert>
-                :
-                null
-                }
+                {error && <ErrorMessage error={error}/>}
+                {showSuccessAlert && <SuccessMessage message={'Trip successfully reserved!'}/>}
             </Row>
     )
 }

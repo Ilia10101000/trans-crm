@@ -4,6 +4,10 @@ import { InputGroup, Stack, Row, Col, Button,Alert } from 'react-bootstrap';
 import { updateDoc, doc, getDoc, collection, getDocs } from 'firebase/firestore';
 import {setUser} from '../store/userReducer'
 import { db } from '../firebase/firebase';
+import useErrorMessage from '../hooks/useErrorMessage';
+import ErrorMessage from './ErrorMessage';
+import useSuccessMessage from '../hooks/useSuccessMessage';
+import SuccessMessage from './SuccessMessage';
 
 export default function PersonalSetting() {
     const user = useSelector(state => state.user);
@@ -11,29 +15,14 @@ export default function PersonalSetting() {
     const [email, setEmail] = React.useState(user.email || '');
     const [phone, setPhone] = React.useState(user.phone?user.phone.slice(4):'');
     const [name,setName] = React.useState(user.name || '');
-    const [showSuccessAlert, setShowSuccessAlert] = React.useState(false);
+    const [showSuccessAlert, setShowSuccessAlert] = useSuccessMessage();
     const [showConfirmAlert, setShowConfirmAlert] = React.useState(false);
     const [showLoader, setShowLoader]= React.useState(false)
-    const [error, setError] = React.useState(null);
+    const [error, setError] = useErrorMessage();
 
 
     const {isDark} = useSelector(state => state.theme);
-    const dispatch = useDispatch()
-
-    React.useEffect(()=> {
-        if(showSuccessAlert){
-            setTimeout(() => {
-                setShowSuccessAlert(false)
-            },2500)
-        }
-    },[showSuccessAlert]);
-    React.useEffect(()=> {
-        if(error){
-            setTimeout(() => {
-                setError(null)
-            },3500)
-        }
-    },[error]);
+    const dispatch = useDispatch();
 
 
     async function getAllReservedTrips(){
@@ -67,22 +56,10 @@ export default function PersonalSetting() {
 
             dispatch(setUser(userSnap.data()))
             localStorage.setItem('user', JSON.stringify(userSnap.data()));
-
-
-
-
-    
             let reservedTripsList = await getAllReservedTrips();
             if(reservedTripsList.length){
                 await Promise.all(reservedTripsList.map(trip => updateDoc(doc(db,`trips/${trip}/passengers/${user.id}`),{email,name,phone: '+380' + phone})))
             }
-
-
-
-
-
-
-
             let createdTripsList = await getAllCreatedTrips();
             if(createdTripsList.length){
                 for(let trip of createdTripsList){
@@ -165,14 +142,7 @@ export default function PersonalSetting() {
                 {
                     
                 }
-                {showSuccessAlert?
-                <Alert className='alert-message mx-auto' variant="success">
-                <Alert.Heading>Congratulations!</Alert.Heading>
-                <p className="text-center">Data successfully updated.</p>
-                </Alert>
-                :
-                null
-                }
+                {showSuccessAlert && <SuccessMessage message={'Data successfully updated!'}/>}
             </form>
                 {showConfirmAlert?
                     <div className="alert-confirm-container">
@@ -192,14 +162,7 @@ export default function PersonalSetting() {
                     </div>
                 :null
                 }
-                {error?
-                <Alert className='alert-message' variant="warning">
-                <Alert.Heading>Alert!</Alert.Heading>
-                <p>{error}</p>
-                </Alert>
-                :
-                null
-                }
+                {error && <ErrorMessage error={error}/>}
         </Col>
     </Row>
   )

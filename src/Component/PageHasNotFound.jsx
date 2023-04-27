@@ -3,6 +3,6 @@ import React from "react";
 export default function PageHasNotFound(){
     
     return (
-        <div>Page has not found</div>
+        <div className="text-center">Page has not found</div>
     )
 }

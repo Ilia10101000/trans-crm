@@ -23,6 +23,20 @@
     margin-right: -50%;
     transform: translate(-50%, 0%) 
 }
+/* header{
+  padding: 10px;
+  height: 100px;
+}
+header::after{
+  content: '';
+  position: absolute;
+  height: 100px;
+  top: 0;
+  right: 0;
+  left: 0;
+  background-color: #6c757d;
+  z-index: -1;
+} */
 .custome-request-input, .custome-input{
     position: relative;
 }

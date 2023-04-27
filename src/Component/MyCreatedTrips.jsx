@@ -1,30 +1,27 @@
 import React from 'react';
-import { Button, Row, Col, Table, Alert, Stack } from 'react-bootstrap';
+import { Button, Row, Col, Alert, Stack } from 'react-bootstrap';
 import CreateTripForm from './CreateTripForm';
-import TripItem from './TripItem';
 import { useSelector } from 'react-redux';
 import { doc, deleteDoc, collection, getDocs} from "firebase/firestore";
 import { db } from "../firebase/firebase";
+import TripsTable from './TripsTable';
+import useErrorMessage from '../hooks/useErrorMessage';
+import ErrorMessage from './ErrorMessage'
+import useSuccessMessage from '../hooks/useSuccessMessage';
+import SuccessMessage from './SuccessMessage'
 
 
 export default function MyCreatedTrips() {
 
     const [tripsList, setTripsList] = React.useState([]);
     const [showCreateForm, setShowCreateForm] = React.useState(false);
-    const [showSuccessAlert, setShowSuccessAlert] = React.useState(false);
+    const [showSuccessAlert, setShowSuccessAlert] = useSuccessMessage();
     const [tripForDelete, setTripForDelete] = React.useState(null);
+    const [error, setError] = useErrorMessage();
 
 
     const {isDark} = useSelector(state => state.theme);
-    const {email, phone:phoneNumber, id:userId} = useSelector(state => state.user);
-
-    React.useEffect(() => {
-        if(showSuccessAlert){
-            setTimeout(() => {
-                setShowSuccessAlert(false)
-            },2000)
-        }
-    },[showSuccessAlert]);
+    const {id:userId} = useSelector(state => state.user);
 
     React.useEffect(()=>{
         getTripsList()
@@ -84,7 +81,7 @@ export default function MyCreatedTrips() {
             await getTripsList();
             setTripForDelete(null)
         } catch (error) {
-            console.log(error.message)
+            setError(error.message)
         }
 
     }
@@ -107,44 +104,29 @@ export default function MyCreatedTrips() {
                             <>
                             {
                             tripsList.length?
-                            <Table striped bordered hover responsive variant={isDark?'dark':''}>
-                                <thead>
-                                    <tr>
-                                    <th>Route</th>
-                                    <th>Date</th>
-                                    <th>Seats left</th>
-                                    <th>Price</th>
-                                    <th>Driver</th>
-                                    <th>Phone</th>
-                                    <th>Car</th>
-                                    <th>Number of Car</th>
-                                    <th>Conditions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {tripsList.map(trip => <TripItem key={trip.id} isPossiableProcessTrip={true} processTheTrip={setTripForDelete} descriptionOfProcess={'Delete'} trip={trip}/>)}
-                                </tbody>
-                            </Table>
-                            :
-                            <div className='text-center'>You didn't created any trip!</div>
+ 
+                                <TripsTable 
+                                tripsList={tripsList} 
+                                processTheTrip={setTripForDelete} 
+                                isPossiableProcessTrip={true} 
+                                seatTdDescription={'Seats left'}
+                                descriptionOfProcess={'Delete'}
+                                isDark={isDark}
+                                />
+                                :
+                                <div className='text-center'>You didn't created any trip!</div>
                             }
                             </>
                     }
                 </Col>
             </Row>
-
             <Row>
                 <Col className='d-flex justify-content-center'>
                 </Col>
             </Row>
         </Col>
-        {showSuccessAlert?
-        <Alert className='alert-message' variant="success">
-            <Alert.Heading>Congratulations!</Alert.Heading>
-            <p>Trip was successfully created!</p>
-        </Alert>
-        :null
-        }
+        {showSuccessAlert && <SuccessMessage message={'Trip was successfully created!'}/>}
+        {error && <ErrorMessage error={error}/>}
         {tripForDelete?
             <div className="alert-confirm-container">
                 <Alert variant="light">

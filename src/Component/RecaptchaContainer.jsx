@@ -6,6 +6,8 @@ import { auth, db } from '../firebase/firebase';
 import { setUser } from '../store/userReducer';
 import { useNavigate } from 'react-router-dom';
 import { setDoc, doc } from 'firebase/firestore';
+import useErrorMessage from '../hooks/useErrorMessage';
+import ErrorMessage from './ErrorMessage'
 
 
 
@@ -17,18 +19,9 @@ export default function RecaptchaContainer({close, getUserFromStore}) {
     const [verificationCode, setVerificationCode] = React.useState('');
     const [showLoader, setShowLoader] = React.useState(false)
 
-    const [error, setError] = React.useState(null);
+    const [error, setError] = useErrorMessage();
     const dispatch = useDispatch();
     const navigate = useNavigate();
-
-    React.useEffect(() => {
-        if(error){
-            setTimeout(() => {
-                setError(null)
-            },7500)
-        }
-    }
-    ,[error]);
 
     function checkValidatePhoneNumber(number){
         const numberArray = number.split('');
@@ -127,14 +120,7 @@ export default function RecaptchaContainer({close, getUserFromStore}) {
                 }
             </Alert>
         </div>
-        {error?
-            <Alert className='alert-message' variant="danger">
-            <Alert.Heading>Alert!</Alert.Heading>
-            <p>{error}</p>
-            </Alert>
-            :
-            null
-        }
+        {error && <ErrorMessage error={error}/>}
         <div id="recaptcha-container"></div>
     </div>
   )

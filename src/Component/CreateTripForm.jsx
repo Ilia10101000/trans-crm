@@ -1,5 +1,5 @@
 import React from 'react'
-import { Button, Col, Row, Alert, InputGroup } from 'react-bootstrap'
+import { Button, Col, Row, InputGroup } from 'react-bootstrap'
 import { useSelector } from 'react-redux';
 import useCustomeRequestInputForm from '../hooks/useCustomeRequestInputForm';
 import PointsResponseResult from './PointsResponseResult';
@@ -11,6 +11,8 @@ import {IoIosMan} from 'react-icons/io';
 import {AiOutlineCalendar, AiFillCar, AiOutlineNumber} from 'react-icons/ai';
 import { doc,collection, setDoc} from "firebase/firestore";
 import { db } from "../firebase/firebase";
+import useErrorMessage from '../hooks/useErrorMessage'
+import ErrorMessage from './ErrorMessage';
 
 
 
@@ -20,7 +22,7 @@ export default function CreateTripForm({setShowSuccessAlert, closeForm, getTrips
     const {name, email, phone:phoneNumber, id: userId} = useSelector(state => state.user);
     const {isDark} = useSelector(state => state.theme);
 
-    const [error, setError] = React.useState(false);
+    const [error, setError] = useErrorMessage();
 
 
     const [driverName, setDriverName] = React.useState(name || '');
@@ -34,7 +36,6 @@ export default function CreateTripForm({setShowSuccessAlert, closeForm, getTrips
     const [car, setCar, carsResultsList, hundlerCarsItemPoint] = useCustomeRequestInputForm(getCars);
     const [departurePoint, setDeparturePoint, departureResultsList, hundlerDepartureItemPoint] = useCustomeRequestInputForm(getPoints);
     const [arrivalPoint, setArrivalPoint, arrivalResultsList, hundlerArrivalItemPoint] = useCustomeRequestInputForm(getPoints);
-    
 
     function hundlerInputChange(event, callback){
         callback(event.target.value)
@@ -89,6 +90,10 @@ export default function CreateTripForm({setShowSuccessAlert, closeForm, getTrips
 
     async function handlerSubmitForm(event){
         event.preventDefault();
+        if(departurePoint == arrivalPoint){
+            setError('You have set two qual points!')
+            return
+        }
         const createdTripId = Date.now()
         try {
             await storeTripToPersonalCreatedTrips(createdTripId);
@@ -264,14 +269,7 @@ export default function CreateTripForm({setShowSuccessAlert, closeForm, getTrips
                 </Row>
             </form>
         </Col>
-                {error?
-                <Alert className='alert-message mx-auto' variant="danger" onClose={() => setError(null)} dismissible>
-                <Alert.Heading>Alert!</Alert.Heading>
-                <p className="text-center">{error}</p>
-                </Alert>
-                :
-                null
-                }
+        {error && <ErrorMessage error={error}/>}
     </Row>
   )
 }

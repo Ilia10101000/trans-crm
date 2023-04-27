@@ -1,6 +1,6 @@
 import React from 'react';
 import {BsFillSunFill, BsFillMoonFill} from 'react-icons/bs'
-import { Button, Col, Container, Row, Stack, Alert, Form, InputGroup } from 'react-bootstrap';
+import { Button, Col, Container, Row, Stack, Form, InputGroup } from 'react-bootstrap';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, NavLink } from 'react-router-dom';
 import { changeThemeMode } from '../store/themeReducer';
@@ -8,6 +8,8 @@ import { setUser } from '../store/userReducer';
 import {createUserWithEmailAndPassword} from 'firebase/auth';
 import { setDoc, doc, collection, getDocs } from 'firebase/firestore';
 import { db,auth} from '../firebase/firebase';
+import useErrorMessage from '../hooks/useErrorMessage';
+import ErrorMessage from './ErrorMessage'
 
 
 export default function Register() {
@@ -16,20 +18,13 @@ export default function Register() {
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
   const [position, setPosition] = React.useState('User');
-  const [error, setError] = React.useState(null);
+  const [error, setError] = useErrorMessage();
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const {isDark} = useSelector(state => state.theme)
 
-  React.useEffect(() => {
-    if(error){
-      setTimeout(() => {
-        setError(null)
-      },2500)
-    }
-  },[error])
 
   const setUsersDataInFSDB = async () => {
           const userRef = collection(db, 'users');
@@ -38,7 +33,7 @@ export default function Register() {
             name,
             email,
             phone: '+380' + phone, 
-            position: email === 'ilya.krasnoper@gmail.com'?'Admin':position,
+            position: email === process.env.REACT_APP_ADMIN_EMAIL?'Admin':position,
             signInMethod:'email'
           })
   };
@@ -58,14 +53,13 @@ export default function Register() {
   }
 
   const registerUser = async () => {
-      const credentials = await createUserWithEmailAndPassword(auth, email, password);
-      console.log(credentials)
+      await createUserWithEmailAndPassword(auth, email, password);
       const userData = {
         id: email,
         email,
         name,
         phone: '+380' + phone,
-        position: email === 'ilya.krasnoper@gmail.com'?'Admin':position,
+        position: email === process.env.REACT_APP_ADMIN_EMAIL?'Admin':position,
         signInMethod:'email'
       }
       dispatch(setUser(userData));
@@ -87,12 +81,16 @@ export default function Register() {
 
 
   }
+  function toogleThemeMode(){
+    localStorage.setItem('darkMode',!isDark)
+    dispatch(changeThemeMode())
+  }
 
   return (
     <Container fluid className={`${isDark?'text-bg-dark':''}`}>
     <Row className='d-flex justify-content-center align-items-center min-vh-100'>
       <Col xs={5} className='d-flex flex-column justify-content-center align-items-center'>
-        <div className='toogleThemeIcon' onClick={() => dispatch(changeThemeMode())}>{isDark?<BsFillSunFill/>:<BsFillMoonFill/>}</div>
+        <div className='toogleThemeIcon' onClick={toogleThemeMode}>{isDark?<BsFillSunFill/>:<BsFillMoonFill/>}</div>
         <h2 className='mb-5'>Register</h2>
         <form onSubmit={signUp}>
           <Stack className='align-items-center' gap={3}>
@@ -127,15 +125,7 @@ export default function Register() {
         <Stack className='align-items-center mt-5'>
           <span>Already have account? <NavLink to='/login' className='text-decoration-none'>Log in</NavLink></span>
         </Stack>
-        {error?
-
-            <Alert className='alert-message' variant="danger">
-            <Alert.Heading>Alert!</Alert.Heading>
-            <p>{error}</p>
-            </Alert>
-            :
-            null
-        }
+        {error && <ErrorMessage error={error}/>}
       </Col>
     </Row>
 </Container>

@@ -7,18 +7,19 @@ import { collection, getDocs, where, query, setDoc, doc } from 'firebase/firesto
 import { changeThemeMode } from '../store/themeReducer';
 import { useDispatch, useSelector } from 'react-redux';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { Button, Col, Container, Row, Stack, Alert } from 'react-bootstrap';
+import { Button, Col, Container, Row, Stack} from 'react-bootstrap';
 import {FcGoogle} from 'react-icons/fc'
 import {GrFacebook} from 'react-icons/gr'
 import RecaptchaContainer from './RecaptchaContainer';
+import useErrorMessage from '../hooks/useErrorMessage';
+import ErrorMessage from './ErrorMessage'
 
 export default function Login() {
 
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
   const [useSigninWithPhoneNumber, setUseSigninWithPhoneNumber] = React.useState(false);
-  const [loading, setLoading] = React.useState(false);
-  const [error, setError] = React.useState(false);
+  const [error, setError] = useErrorMessage();
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -47,31 +48,12 @@ export default function Login() {
       throw new Error(error.message)
     }
   };
-
+  function toogleThemeMode(){
+    localStorage.setItem('darkMode',!isDark)
+    dispatch(changeThemeMode())
+  }
 
   async function signInByProvider(provider){
-
-    // linkWithPopup(auth.currentUser, provider).then((result) => {
-    //   // Accounts successfully linked.
-    //   const credential = GoogleAuthProvider.credentialFromResult(result);
-    //   const user = result.user;
-    //   console.log(user)
-    //   // ...
-    // }).catch((error) => {
-    //   // Handle Errors here.
-    //   // ...
-    // });
-
-
-//     const credential = GoogleAuthProvider.credentialFromResult(result);
-// linkWithCredential(auth.currentUser, credential)
-// .then((usercred) => {
-//   const user = usercred.user;
-//   console.log("Account linking success", user);
-// }).catch((error) => {
-//   console.log("Account linking error", error);
-// });
-
 
     try {
 
@@ -102,7 +84,7 @@ export default function Login() {
     <Container fluid className={`${isDark?'text-bg-dark':''}`}>
         <Row className='d-flex justify-content-center align-items-center min-vh-100'>
           <Col xs={5} className='d-flex flex-column justify-content-center align-items-center'>
-            <div className='toogleThemeIcon' onClick={() => dispatch(changeThemeMode())}>{isDark?<BsFillSunFill/>:<BsFillMoonFill/>}</div>
+            <div className='toogleThemeIcon' onClick={toogleThemeMode}>{isDark?<BsFillSunFill/>:<BsFillMoonFill/>}</div>
             <h2 className='mb-5'>Login</h2>
             <form onSubmit={signIn}>
               <Stack className=' d-flex flex-column align-items-center' gap={3}>
@@ -132,14 +114,7 @@ export default function Login() {
                 </Stack>
               </div>
             </Stack>
-            {error && !useSigninWithPhoneNumber?
-            <Alert className='alert-message' variant="danger" onClose={() => setError(null)} dismissible>
-            <Alert.Heading>Alert!</Alert.Heading>
-            <p>{error}</p>
-            </Alert>
-            :
-            null
-            }
+            {error && !useSigninWithPhoneNumber && <ErrorMessage error={error}/>}
           </Col>
           {useSigninWithPhoneNumber?
             <RecaptchaContainer getUserFromStore={requestUserData} close={() => setUseSigninWithPhoneNumber(false)}/>

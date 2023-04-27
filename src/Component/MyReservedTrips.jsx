@@ -1,30 +1,27 @@
 import React from 'react'
 import { Button, Row, Col, Table, Alert, Stack } from 'react-bootstrap';
-import TripItem from './TripItem';
+import TripsTable from './TripsTable';
 import { useSelector } from 'react-redux';
 import { doc, updateDoc, getDocs,collection, deleteDoc, increment} from "firebase/firestore";
 import { db } from "../firebase/firebase";
+import useErrorMessage from '../hooks/useErrorMessage';
+import ErrorMessage from './ErrorMessage';
+import useSuccessMessage from '../hooks/useSuccessMessage';
+import SuccessMessage from './SuccessMessage';
 
 export default function MyReservedTrips() {
     const [tripsList, setTripsList] = React.useState([]);
     const [tripForCancel, setTripForCancel] = React.useState(null);
-    const [error, setError] = React.useState(null)
+    const [error, setError] = useErrorMessage();
+    const [showSuccessAlert, setShowSuccessAlert] = useSuccessMessage();
 
 
     const {isDark} = useSelector(state => state.theme);
-    const {email, phone:phoneNumber, id:userId} = useSelector(state => state.user);
+    const {id:userId} = useSelector(state => state.user);
 
-    
     React.useEffect(()=>{
         getTripsList()
     },[])
-    React.useEffect(()=>{
-        if(error){
-            setTimeout(() => {
-                setError(null)
-            },2500)
-        }
-    },[error])
 
     async function getTripsList(){
         try {
@@ -62,6 +59,7 @@ export default function MyReservedTrips() {
             });
             setTripForCancel(null);
             await getTripsList()
+            setShowSuccessAlert(true)
         } catch (error) {
             setError(error.message)
         }
@@ -73,26 +71,15 @@ export default function MyReservedTrips() {
         <Col>
             {
             tripsList.length?
-            <Table striped bordered hover responsive variant={isDark?'dark':''}>
-                <thead>
-                    <tr>
-                    <th>Route</th>
-                    <th>Date</th>
-                    <th>Seats</th>
-                    <th>Price</th>
-                    <th>Driver</th>
-                    <th>Phone</th>
-                    <th>Car</th>
-                    <th>Number of Car</th>
-                    <th>Conditions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {tripsList.map(trip => <TripItem key={trip.id} processTheTrip={setTripForCancel} descriptionOfProcess={'Cancel'} trip={{...trip.parametres}}/>)}
-                </tbody>
-            </Table>
+                <TripsTable 
+                tripsList={tripsList} 
+                processTheTrip={setTripForCancel} 
+                seatTdDescription={'Seats left'}
+                descriptionOfProcess={'Cancel'}
+                isDark={isDark}
+                />
             :
-            <div className='text-center mt-3'>You didn't reserved any trip!</div>
+                <div className='text-center mt-3'>You didn't reserved any trip!</div>
             }
         </Col>
         {tripForCancel?
@@ -107,14 +94,8 @@ export default function MyReservedTrips() {
             </div>
         :null
         }
-        {error?
-        <Alert className='alert-message mx-auto' variant="warning">
-        <Alert.Heading>Alert!</Alert.Heading>
-        <p className="text-center">{error}</p>
-        </Alert>
-        :
-        null
-        }
+        {error && <ErrorMessage error={error}/>}
+        {showSuccessAlert && <SuccessMessage message={'Trip successfully canceled!'}/>}
     </Row>
   )
 }

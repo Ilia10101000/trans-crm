@@ -1,14 +1,10 @@
 import React from "react";
 import { useSelector } from 'react-redux';
 import photo from '../img/photo-576.jpg'
-import { Col, Row, ListGroup, Card, Button} from "react-bootstrap";
-import { doc, updateDoc, collection, setDoc, getDocs, query, where} from "firebase/firestore";
-import { db } from "../firebase/firebase";
-
+import { Col, Row, ListGroup, Card} from "react-bootstrap";
 export default function Home(){
 
     const {isDark} = useSelector(state => state.theme);
-    const {email} = useSelector(state => state.user)
 
     return (
         <Row>
